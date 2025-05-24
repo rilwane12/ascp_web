@@ -1,0 +1,230 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ patient.nom }} {{ patient.prenom }} | Asclepios Prescription{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h2">
+            <i class="fas fa-user-injured me-2"></i> {{ patient.nom }} {{ patient.prenom }}
+        </h1>
+        <p class="text-muted">{{ patient.age }} ans - {{ patient.get_genre_display }}</p>
+    </div>
+    <div class="col-auto">
+        <div class="btn-group" role="group">
+            <a href="{% url 'patient_edit' patient.pk %}" class="btn btn-outline-primary">
+                <i class="fas fa-edit me-2"></i> Modifier
+            </a>
+            <a href="{% url 'consultation_create' %}?patient={{ patient.pk }}" class="btn btn-success">
+                <i class="fas fa-stethoscope me-2"></i> Nouvelle consultation
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Informations du patient -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i> Informations
+                </h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">Nom</dt>
+                    <dd class="col-sm-7">{{ patient.nom }}</dd>
+                    
+                    <dt class="col-sm-5">Prénom</dt>
+                    <dd class="col-sm-7">{{ patient.prenom }}</dd>
+                    
+                    <dt class="col-sm-5">Âge</dt>
+                    <dd class="col-sm-7">{{ patient.age }}</dd>
+                    
+                    <dt class="col-sm-5">Genre</dt>
+                    <dd class="col-sm-7">{{ patient.get_genre_display }}</dd>
+                    
+                    <dt class="col-sm-5">Profession</dt>
+                    <dd class="col-sm-7">{{ patient.profession|default:"-" }}</dd>
+                    
+                    <dt class="col-sm-5">Adresse</dt>
+                    <dd class="col-sm-7">{{ patient.adresse|default:"-" }}</dd>
+                    
+                    <dt class="col-sm-5">Contact</dt>
+                    <dd class="col-sm-7">{{ patient.contact|default:"-" }}</dd>
+                    
+                    <dt class="col-sm-5">Groupe sanguin</dt>
+                    <dd class="col-sm-7">{{ patient.groupe_sanguin|default:"-" }}</dd>
+                    
+                    <dt class="col-sm-5">N° Donneur de Sang</dt>
+                    <dd class="col-sm-7">{{ patient.n_donneur_sang|default:"-" }}</dd>
+                    
+                    <dt class="col-sm-5">Date d'ajout</dt>
+                    <dd class="col-sm-7">{{ patient.created_at|date:"d/m/Y" }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Allergies et notes -->
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i> Allergies et Notes Médicales
+                </h5>
+            </div>
+            <div class="card-body">
+                <h6>Allergies</h6>
+                {% if patient.allergies %}
+                    <div class="mb-4">{{ patient.allergies }}</div>
+                {% else %}
+                    <div class="mb-4 text-muted">Aucune allergie connue</div>
+                {% endif %}
+                
+                <h6>Notes</h6>
+                <div class="text-muted">
+                    Aucune note disponible pour le moment
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Historique des consultations -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-history me-2"></i> Historique des Consultations
+                </h5>
+                <a href="{% url 'consultation_create' %}?patient={{ patient.pk }}" class="btn btn-sm btn-light">
+                    <i class="fas fa-plus me-2"></i> Nouvelle consultation
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Médecin</th>
+                                <th>Diagnostics</th>
+                                <th>Ordonnance</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for consultation in consultations %}
+                                <tr>
+                                    <td>{{ consultation.date|date:"d/m/Y H:i" }}</td>
+                                    <td>Dr. {{ consultation.doctor.nom }} {{ consultation.doctor.prenom }}</td>
+                                    <td>
+                                        {% if consultation.examen_clinique %}
+                                            {{ consultation.examen_clinique.diagnostics|truncatechars:50|default:"-" }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if consultation.ordonnance %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-prescription me-1"></i> Ordonnance disponible
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Aucune ordonnance</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'consultation_detail' consultation.pk %}" class="btn btn-outline-primary" data-bs-toggle="tooltip" title="Voir détails">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% if consultation.ordonnance %}
+                                                <a href="{% url 'prescription_detail' consultation.ordonnance.pk %}" class="btn btn-outline-success" data-bs-toggle="tooltip" title="Voir ordonnance">
+                                                    <i class="fas fa-prescription"></i>
+                                                </a>
+                                            {% else %}
+                                                <a href="{% url 'prescription_create' consultation.pk %}" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Créer ordonnance">
+                                                    <i class="fas fa-plus"></i>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="fas fa-stethoscope fa-3x mb-3"></i>
+                                            <p>Aucune consultation enregistrée pour ce patient</p>
+                                            <a href="{% url 'consultation_create' %}?patient={{ patient.pk }}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-plus me-2"></i> Ajouter une consultation
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if consultations %}
+<!-- Graphiques et statistiques -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i> Évolution des indicateurs
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="py-5">
+                    <p class="text-muted">
+                        <i class="fas fa-chart-line fa-3x mb-3"></i><br>
+                        Graphiques en cours de développement
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-pills me-2"></i> Médicaments prescrits
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="py-5">
+                    <p class="text-muted">
+                        <i class="fas fa-pills fa-3x mb-3"></i><br>
+                        Historique des médicaments en cours de développement
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+{% endblock %}

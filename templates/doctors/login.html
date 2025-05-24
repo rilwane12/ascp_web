@@ -1,0 +1,61 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Connexion | Asclepios Prescription{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white text-center">
+                <h3 class="mb-0">
+                    <i class="fas fa-notes-medical me-2"></i>Asclepios Prescription
+                </h3>
+                <p class="mb-0 mt-2">Système de gestion d'ordonnances médicales</p>
+            </div>
+            <div class="card-body p-4">
+                <h4 class="text-center mb-4">Connexion Médecin</h4>
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Email</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.username.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label">Mot de passe</label>
+                        {{ form.password }}
+                        {% if form.password.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.password.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer bg-light text-center">
+                <p class="mb-0">Pas encore de compte ? <a href="{% url 'register' %}">S'inscrire</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

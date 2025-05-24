@@ -1,0 +1,118 @@
+{% extends 'base/base.html' %}
+
+{% block title %}
+    {% if medicament %}
+        Modifier Médicament
+    {% else %}
+        Nouveau Médicament
+    {% endif %}
+    | Asclepios Prescription
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h2">
+            {% if medicament %}
+                <i class="fas fa-edit me-2"></i> Modifier Médicament
+            {% else %}
+                <i class="fas fa-plus me-2"></i> Nouveau Médicament
+            {% endif %}
+        </h1>
+        <p class="text-muted">
+            {% if medicament %}
+                Modifier les informations du médicament
+            {% else %}
+                Ajouter un nouveau médicament au catalogue
+            {% endif %}
+        </p>
+    </div>
+    <div class="col-auto">
+        <a href="{% url 'medicament_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Retour au catalogue
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-pills me-2"></i> Informations du médicament
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_nom" class="form-label">Nom <span class="text-danger">*</span></label>
+                        {{ form.nom }}
+                        {% if form.nom.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.nom.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_forme" class="form-label">Forme</label>
+                            {{ form.forme }}
+                            {% if form.forme.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.forme.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="id_dosage" class="form-label">Dosage</label>
+                            {{ form.dosage }}
+                            {% if form.dosage.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.dosage.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_description" class="form-label">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.description.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'medicament_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i> Annuler
+                        </a>
+                        <div>
+                            {% if not medicament %}
+                                <button type="submit" name="save_and_add" class="btn btn-success me-2">
+                                    <i class="fas fa-save me-2"></i> Enregistrer et ajouter un autre
+                                </button>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Enregistrer
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

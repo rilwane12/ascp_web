@@ -1,0 +1,255 @@
+{% extends "admin_dashboard/base_admin.html" %}
+
+{% block title %}Analyse des Patients | Administration Asclepios{% endblock %}
+
+{% block page_title %}Analyse des Patients{% endblock %}
+
+{% block content %}
+<!-- Statistiques générales -->
+<div class="row">
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card stats-card">
+            <div class="card-body">
+                <i class="fas fa-users text-primary"></i>
+                <div class="value">{{ total_patients }}</div>
+                <div class="label">Patients au total</div>
+            </div>
+            <div class="card-footer bg-white text-center">
+                <a href="/admin/patients/patient/" class="btn btn-sm btn-outline-primary">Voir tous</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card stats-card">
+            <div class="card-body">
+                <i class="fas fa-male text-info"></i>
+                <div class="value">{{ patients_gender_ratio.M }}</div>
+                <div class="label">Hommes</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card stats-card">
+            <div class="card-body">
+                <i class="fas fa-female text-danger"></i>
+                <div class="value">{{ patients_gender_ratio.F }}</div>
+                <div class="label">Femmes</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Graphiques -->
+<div class="row">
+    <!-- Distribution par âge -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">Distribution des patients par âge</div>
+            <div class="card-body">
+                <canvas id="ageDistributionChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Répartition par genre (camembert) -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">Répartition par genre</div>
+            <div class="card-body">
+                <canvas id="genderPieChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Évolution mensuelle -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">Évolution du nombre de patients (12 derniers mois)</div>
+            <div class="card-body">
+                <canvas id="patientsMonthlyChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fonctionnalités d'exportation -->
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">Exportation des données</div>
+            <div class="card-body">
+                <p>Exportez la liste des patients au format de votre choix :</p>
+                <a href="/admin/patients/patient/?_export=csv" class="btn btn-outline-primary m-1">
+                    <i class="fas fa-file-csv me-2"></i>Exporter en CSV
+                </a>
+                <a href="/admin/patients/patient/?_export=excel" class="btn btn-outline-success m-1">
+                    <i class="fas fa-file-excel me-2"></i>Exporter en Excel
+                </a>
+                <a href="/admin/patients/patient/?_export=json" class="btn btn-outline-secondary m-1">
+                    <i class="fas fa-file-code me-2"></i>Exporter en JSON
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">Actions rapides</div>
+            <div class="card-body">
+                <p>Gérez les dossiers des patients :</p>
+                <a href="/admin/patients/patient/add/" class="btn btn-outline-success m-1">
+                    <i class="fas fa-user-plus me-2"></i>Nouveau patient
+                </a>
+                <a href="/admin/examinations/consultation/add/" class="btn btn-outline-info m-1">
+                    <i class="fas fa-calendar-plus me-2"></i>Nouvelle consultation
+                </a>
+                <a href="/admin/patients/patient/" class="btn btn-outline-primary m-1">
+                    <i class="fas fa-search me-2"></i>Rechercher un patient
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configuration des couleurs
+        const primaryColor = '#4e73df';
+        const successColor = '#1cc88a';
+        const infoColor = '#36b9cc';
+        const warningColor = '#f6c23e';
+        const dangerColor = '#e74a3b';
+        
+        // Graphique de distribution par âge
+        const ageData = {{ patients_by_age|safe }};
+        const ageLabels = ageData.map(item => item.age);
+        const ageCounts = ageData.map(item => item.count);
+        
+        new Chart(document.getElementById('ageDistributionChart'), {
+            type: 'bar',
+            data: {
+                labels: ageLabels,
+                datasets: [{
+                    label: 'Nombre de patients',
+                    data: ageCounts,
+                    backgroundColor: primaryColor,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Nombre de patients par âge'
+                    }
+                }
+            }
+        });
+        
+        // Graphique de répartition par genre
+        const genderData = [
+            { label: 'Hommes', value: {{ patients_gender_ratio.M }} },
+            { label: 'Femmes', value: {{ patients_gender_ratio.F }} }
+        ];
+        
+        new Chart(document.getElementById('genderPieChart'), {
+            type: 'pie',
+            data: {
+                labels: genderData.map(item => item.label),
+                datasets: [{
+                    data: genderData.map(item => item.value),
+                    backgroundColor: [infoColor, dangerColor],
+                    hoverBackgroundColor: [
+                        'rgba(54, 185, 204, 0.8)',
+                        'rgba(231, 74, 59, 0.8)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = genderData.reduce((sum, item) => sum + item.value, 0);
+                                const percentage = ((context.raw / total) * 100).toFixed(1);
+                                return `${context.label}: ${context.raw} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Graphique d'évolution mensuelle
+        const monthlyData = {{ patients_by_month|safe }};
+        const monthlyLabels = monthlyData.map(item => {
+            const date = new Date(item.month);
+            return `${date.getMonth() + 1}/${date.getFullYear()}`;
+        });
+        const monthlyCounts = monthlyData.map(item => item.count);
+        
+        new Chart(document.getElementById('patientsMonthlyChart'), {
+            type: 'line',
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    label: 'Nouveaux patients',
+                    data: monthlyCounts,
+                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                    borderColor: primaryColor,
+                    borderWidth: 2,
+                    pointBackgroundColor: primaryColor,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                return `Mois: ${tooltipItems[0].label}`;
+                            },
+                            label: function(context) {
+                                return `Nouveaux patients: ${context.raw}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+

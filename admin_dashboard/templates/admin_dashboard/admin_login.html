@@ -1,0 +1,224 @@
+{% extends "admin/login.html" %}
+{% load i18n static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Asclepios Admin') }}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #4e73df;
+      --secondary-color: #858796;
+      --success-color: #1cc88a;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f8f9fa;
+    }
+    
+    .login-container {
+      max-width: 450px;
+      margin: 100px auto;
+    }
+    
+    .login-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .login-header h1 {
+      font-size: 2rem;
+      color: var(--primary-color);
+    }
+    
+    .login-card {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+    
+    .login-form input {
+      margin-bottom: 15px;
+      border-radius: 5px;
+      padding: 12px;
+    }
+    
+    .login-form button {
+      background-color: var(--primary-color);
+      border: none;
+      padding: 12px;
+      border-radius: 5px;
+      width: 100%;
+      color: white;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    
+    .two-factor {
+      display: none; /* Par défaut caché, affiché via JavaScript si nécessaire */
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+    
+    .form-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.9rem;
+    }
+    
+    .form-footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+    
+    .form-footer a:hover {
+      text-decoration: underline;
+    }
+    
+    .errorlist {
+      list-style: none;
+      padding: 0;
+      color: #e74a3b;
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+    }
+  </style>
+{% endblock %}
+
+{% block bodyclass %}login{% endblock %}
+
+{% block usertools %}{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block nav-sidebar %}{% endblock %}
+
+{% block content_title %}{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div class="login-container">
+  <div class="login-header">
+    <h1>Asclepios</h1>
+    <p>Administration</p>
+  </div>
+
+  <div class="login-card">
+    {% if form.errors and not form.non_field_errors %}
+    <div class="alert alert-danger" role="alert">
+      <i class="fas fa-exclamation-circle me-2"></i>
+      {% if form.errors.items|length == 1 %}
+        {% translate "Please correct the error below." %}
+      {% else %}
+        {% translate "Please correct the errors below." %}
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger" role="alert">
+      <i class="fas fa-exclamation-circle me-2"></i>
+      {% for error in form.non_field_errors %}
+        {{ error }}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <form class="login-form" action="{{ app_path }}" method="post" id="login-form">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="id_username" class="form-label">{{ form.username.label }}</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+          {{ form.username }}
+        </div>
+        {% if form.username.errors %}
+          <div class="errorlist">{{ form.username.errors }}</div>
+        {% endif %}
+      </div>
+      
+      <div class="form-group">
+        <label for="id_password" class="form-label">{{ form.password.label }}</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-lock"></i></span>
+          {{ form.password }}
+        </div>
+        {% if form.password.errors %}
+          <div class="errorlist">{{ form.password.errors }}</div>
+        {% endif %}
+      </div>
+      
+      <div id="two-factor-auth" class="two-factor">
+        <h5>Authentification à deux facteurs</h5>
+        <p>Entrez le code à usage unique généré par votre application d'authentification.</p>
+        <div class="form-group">
+          <label for="id_otp" class="form-label">Code à usage unique</label>
+          <input type="text" class="form-control" id="id_otp" name="otp" placeholder="Entrez le code à 6 chiffres" autocomplete="off">
+        </div>
+      </div>
+      
+      {% url 'admin_password_reset' as password_reset_url %}
+      {% if password_reset_url %}
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="rememberMe">
+        <label class="form-check-label" for="rememberMe">
+          Se souvenir de moi
+        </label>
+        <a href="{{ password_reset_url }}" class="float-end">Mot de passe oublié ?</a>
+      </div>
+      {% endif %}
+      
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-sign-in-alt me-2"></i>Connexion
+      </button>
+      
+      <input type="hidden" name="next" value="{{ next }}">
+    </form>
+  </div>
+  
+  <div class="form-footer">
+    <p>&copy; {% now "Y" %} Asclepios. Tous droits réservés.</p>
+    <p><a href="/">Retour au site</a></p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('login-form');
+    
+    // Cette fonction vérifie si l'utilisateur a activé l'authentification à deux facteurs
+    // Dans une implémentation réelle, cela ferait une requête AJAX après la première soumission du formulaire
+    function check2FAStatus(username) {
+      // Simuler une vérification (pour démonstration)
+      // Dans une implémentation réelle, cela vérifierait auprès du serveur
+      const has2FA = false; // Mettez à true pour tester l'interface 2FA
+      
+      if (has2FA) {
+        document.getElementById('two-factor-auth').style.display = 'block';
+        return false; // Empêche la soumission du formulaire pour afficher le champ 2FA
+      }
+      return true; // Continue la soumission normale du formulaire
+    }
+    
+    // Pour une implémentation future de la vérification 2FA
+    // loginForm.addEventListener('submit', function(e) {
+    //   const username = document.getElementById('id_username').value;
+    //   if (username && !document.getElementById('id_otp').value) {
+    //     if (!check2FAStatus(username)) {
+    //       e.preventDefault();
+    //     }
+    //   }
+    // });
+  });
+</script>
+{% endblock %}
+

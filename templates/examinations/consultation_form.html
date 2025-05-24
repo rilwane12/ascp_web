@@ -1,0 +1,85 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Nouvelle Consultation | Asclepios Prescription{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h2">
+            <i class="fas fa-stethoscope me-2"></i> Nouvelle Consultation
+        </h1>
+        <p class="text-muted">Créez une nouvelle consultation médicale</p>
+    </div>
+    <div class="col-auto">
+        <a href="{% url 'consultation_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Retour à la liste
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-clipboard-list me-2"></i> Informations de la consultation
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_patient" class="form-label">Patient <span class="text-danger">*</span></label>
+                        {{ form.patient }}
+                        {% if form.patient.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.patient.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <p class="text-muted">
+                            <i class="fas fa-info-circle me-2"></i> La date et l'heure de la consultation seront automatiquement enregistrées.
+                        </p>
+                    </div>
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'consultation_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Créer Consultation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-plus me-2"></i> Patient non enregistré ?
+                </h5>
+            </div>
+            <div class="card-body">
+                <p>Si le patient n'est pas encore enregistré dans le système, vous pouvez l'ajouter maintenant.</p>
+                <div class="d-grid">
+                    <a href="{% url 'patient_create' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-plus me-2"></i> Ajouter un nouveau patient
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Ordonnance {{ ordonnance.date_prescription|date:"d/m/Y" }} | Asclepios Prescription{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h2">
+            <i class="fas fa-prescription me-2"></i> Ordonnance du {{ ordonnance.date_prescription|date:"d/m/Y" }}
+        </h1>
+        <p class="text-muted">
+            Patient: <a href="{% url 'patient_detail' ordonnance.consultation.patient.pk %}" class="text-decoration-none">
+                {{ ordonnance.consultation.patient.nom }} {{ ordonnance.consultation.patient.prenom }}
+            </a> | Médecin: Dr. {{ ordonnance.consultation.doctor.nom }} {{ ordonnance.consultation.doctor.prenom }}
+        </p>
+    </div>
+    <div class="col-auto">
+        <div class="btn-group" role="group">
+            <a href="{% url 'prescription_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Retour à la liste
+            </a>
+            <a href="{% url 'prescription_edit' ordonnance.pk %}" class="btn btn-outline-primary">
+                <i class="fas fa-edit me-2"></i> Modifier
+            </a>
+            <a href="{% url 'prescription_pdf' ordonnance.pk %}" class="btn btn-outline-success">
+                <i class="fas fa-file-pdf me-2"></i> Télécharger PDF
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Informations de l'ordonnance -->
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-prescription me-2"></i> Ordonnance
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="prescription-container">
+                    <div class="prescription-header">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h3>Dr. {{ ordonnance.consultation.doctor.nom }} {{ ordonnance.consultation.doctor.prenom }}</h3>
+                                <p>{{ ordonnance.consultation.doctor.specialite|default:"Médecin" }}</p>
+                                <p>Numéro d'ordre: {{ ordonnance.consultation.doctor.n_ordre }}</p>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <h4>Ordonnance</h4>
+                                <p>Date: {{ ordonnance.date_prescription|date:"d/m/Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="patient-info mb-4">
+                        <div class="row">
+                            <div class="col-12">
+                                <h5>Patient</h5>
+                                <p>
+                                    <strong>{{ ordonnance.consultation.patient.nom }} {{ ordonnance.consultation.patient.prenom }}</strong><br>
+                                    Âge: {{ ordonnance.consultation.patient.age }} ans | 
+                                    Genre: {{ ordonnance.consultation.patient.get_genre_display }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="prescription-content">
+                        <h5>Prescription</h5>
+                        <ul class="list-unstyled">
+                            {% for ligne in prescription_lines %}
+                                <li class="prescription-item">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <h6>{{ ligne.medicament }}</h6>
+                                            <p class="text-muted small">{{ ligne.quantite }}</p>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <p>{{ ligne.posologie }}</p>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% empty %}
+                                <li class="prescription-item text-muted">
+                                    Aucun médicament prescrit
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <div class="prescription-footer mt-4 text-end">
+                        <p>Signature:</p>
+                        <div class="mt-5">
+                            <p>Dr. {{ ordonnance.consultation.doctor.nom }} {{ ordonnance.consultation.doctor.prenom }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-light d-flex justify-content-between align-items-center">
+                <span class="text-muted">Total: <strong>{{ prescription_lines.count }}</strong> médicament(s)</span>
+                <div class="btn-group" role="group">
+                    <a href="{% url 'prescription_edit' ordonnance.pk %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-edit me-2"></i> Modifier
+                    </a>
+                    <a href="{% url 'prescription_pdf' ordonnance.pk %}" class="btn btn-success btn-sm">
+                        <i class="fas fa-file-pdf me-2"></i> Générer PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Image de l'ordonnance -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-image me-2"></i> Aperçu
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                {% if ordonnance.image %}
+                    <img src="{{ ordonnance.image.url }}" alt="Ordonnance" class="img-fluid img-thumbnail">
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-file-pdf fa-3x text-muted mb-3"></i>
+                        <p>Aucune image disponible</p>
+                        <p class="small">Générez un PDF pour créer une image de l'ordonnance</p>
+                        <a href="{% url 'prescription_pdf' ordonnance.pk %}" class="btn btn-primary">
+                            <i class="fas fa-file-pdf me-2"></i> Générer PDF
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Consultation associée -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-stethoscope me-2"></i> Consultation associée
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">Date</dt>
+                            <dd class="col-sm-8">{{ ordonnance.consultation.date|date:"d/m/Y à H:i" }}</dd>
+                            
+                            <dt class="col-sm-4">Patient</dt>
+                            <dd class="col-sm-8">
+                                <a href="{% url 'patient_detail' ordonnance.consultation.patient.pk %}">
+                                    {{ ordonnance.consultation.patient.nom }} {{ ordonnance.consultation.patient.prenom }}
+                                </a>
+                            </dd>
+                            
+                            <dt class="col-sm-4">Médecin</dt>
+                            <dd class="col-sm-8">Dr. {{ ordonnance.consultation.doctor.nom }} {{ ordonnance.consultation.doctor.prenom }}</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">Diagnostics</dt>
+                            <dd class="col-sm-8">
+                                {% if ordonnance.consultation.examen_clinique.diagnostics %}
+                                    {{ ordonnance.consultation.examen_clinique.diagnostics|truncatechars:200 }}
+                                {% else %}
+                                    <span class="text-muted">Non spécifié</span>
+                                {% endif %}
+                            </dd>
+                            
+                            <dt class="col-sm-4">Examens cliniques</dt>
+                            <dd class="col-sm-8">
+                                {% if ordonnance.consultation.examen_clinique %}
+                                    <span class="badge bg-success">Complété</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Non complété</span>
+                                {% endif %}
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="{% url 'consultation_detail' ordonnance.consultation.pk %}" class="btn btn-outline-primary">
+                        <i class="fas fa-eye me-2"></i> Voir la consultation complète
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

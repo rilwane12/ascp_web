@@ -1,0 +1,287 @@
+{% extends 'base/base.html' %}
+
+{% block title %}
+    {% if examen_clinique %}
+        Modifier Examen Clinique
+    {% else %}
+        Nouvel Examen Clinique
+    {% endif %}
+    | Asclepios Prescription
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h2">
+            {% if examen_clinique %}
+                <i class="fas fa-edit me-2"></i> Modifier Examen Clinique
+            {% else %}
+                <i class="fas fa-clipboard-list me-2"></i> Nouvel Examen Clinique
+            {% endif %}
+        </h1>
+        <p class="text-muted">
+            Patient: <a href="{% url 'patient_detail' consultation.patient.pk %}" class="text-decoration-none">
+                {{ consultation.patient.nom }} {{ consultation.patient.prenom }}
+            </a> | Consultation du {{ consultation.date|date:"d/m/Y à H:i" }}
+        </p>
+    </div>
+    <div class="col-auto">
+        <a href="{% url 'consultation_detail' consultation.pk %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Retour à la consultation
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Constantes vitales -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-heartbeat me-2"></i> Constantes Vitales
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="id_poids" class="form-label">Poids</label>
+                            {{ form.poids }}
+                            {% if form.poids.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.poids.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="id_taille" class="form-label">Taille</label>
+                            {{ form.taille }}
+                            {% if form.taille.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.taille.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="id_temperature" class="form-label">Température</label>
+                            {{ form.temperature }}
+                            {% if form.temperature.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.temperature.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="id_fr_cardiaque" class="form-label">Fréquence cardiaque</label>
+                            {{ form.fr_cardiaque }}
+                            {% if form.fr_cardiaque.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.fr_cardiaque.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="id_fr_respiratoire" class="form-label">Fréquence respiratoire</label>
+                            {{ form.fr_respiratoire }}
+                            {% if form.fr_respiratoire.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.fr_respiratoire.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="id_sa_o2" class="form-label">SaO2</label>
+                            {{ form.sa_o2 }}
+                            {% if form.sa_o2.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.sa_o2.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="id_conj_muq" class="form-label">Conjonctives/Muqueuses</label>
+                            {{ form.conj_muq }}
+                            {% if form.conj_muq.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.conj_muq.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Antécédents -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i> Antécédents et Mode de Vie
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_atcd_med" class="form-label">Antécédents médicaux</label>
+                            {{ form.atcd_med }}
+                            {% if form.atcd_med.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.atcd_med.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="id_atcd_chir" class="form-label">Antécédents chirurgicaux</label>
+                            {{ form.atcd_chir }}
+                            {% if form.atcd_chir.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.atcd_chir.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_atcd_fam" class="form-label">Antécédents familiaux</label>
+                            {{ form.atcd_fam }}
+                            {% if form.atcd_fam.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.atcd_fam.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="id_mode_vie" class="form-label">Mode de vie</label>
+                            {{ form.mode_vie }}
+                            {% if form.mode_vie.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.mode_vie.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Examen physique -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-md me-2"></i> Examen Physique
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="id_plaintes" class="form-label">Plaintes</label>
+                        {{ form.plaintes }}
+                        {% if form.plaintes.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.plaintes.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_examen_physique" class="form-label">Examen physique</label>
+                        {{ form.examen_physique }}
+                        {% if form.examen_physique.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.examen_physique.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_examen_physique_1" class="form-label">Examen physique (suite)</label>
+                        {{ form.examen_physique_1 }}
+                        {% if form.examen_physique_1.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.examen_physique_1.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_examen_physique_2" class="form-label">Examen physique (suite)</label>
+                        {{ form.examen_physique_2 }}
+                        {% if form.examen_physique_2.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.examen_physique_2.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_examen_physique_3" class="form-label">Examen physique (suite)</label>
+                        {{ form.examen_physique_3 }}
+                        {% if form.examen_physique_3.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.examen_physique_3.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Diagnostics -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list-alt me-2"></i> Diagnostics et Notes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="id_hypothese_diagnostics" class="form-label">Hypothèses diagnostiques</label>
+                        {{ form.hypothese_diagnostics }}
+                        {% if form.hypothese_diagnostics.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.hypothese_diagnostics.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_diagnostics" class="form-label">Diagnostics</label>
+                        {{ form.diagnostics }}
+                        {% if form.diagnostics.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.diagnostics.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_note_medecin" class="form-label">Note du médecin</label>
+                        {{ form.note_medecin }}
+                        {% if form.note_medecin.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.note_medecin.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <div class="d-flex justify-content-between mb-4">
+                <a href="{% url 'consultation_detail' consultation.pk %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i> Annuler
+                </a>
+                <div>
+                    <button type="submit" name="save" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i> Enregistrer
+                    </button>
+                    <button type="submit" name="save_and_prescription" class="btn btn-success ms-2">
+                        <i class="fas fa-prescription me-2"></i> Enregistrer et créer ordonnance
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

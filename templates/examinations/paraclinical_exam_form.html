@@ -1,0 +1,129 @@
+{% extends 'base/base.html' %}
+
+{% block title %}
+    {% if examen %}
+        Modifier Examen Paraclinique
+    {% else %}
+        Nouvel Examen Paraclinique
+    {% endif %}
+    | Asclepios Prescription
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h2">
+            {% if examen %}
+                <i class="fas fa-edit me-2"></i> Modifier Examen Paraclinique
+            {% else %}
+                <i class="fas fa-vial me-2"></i> Nouvel Examen Paraclinique
+            {% endif %}
+        </h1>
+        <p class="text-muted">
+            Patient: <a href="{% url 'patient_detail' consultation.patient.pk %}" class="text-decoration-none">
+                {{ consultation.patient.nom }} {{ consultation.patient.prenom }}
+            </a> | Consultation du {{ consultation.date|date:"d/m/Y à H:i" }}
+        </p>
+    </div>
+    <div class="col-auto">
+        <a href="{% url 'consultation_detail' consultation.pk %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Retour à la consultation
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-vial me-2"></i> 
+                    {% if examen %}
+                        Modifier Examen
+                    {% else %}
+                        Informations de l'examen
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_nom" class="form-label">Nom de l'examen <span class="text-danger">*</span></label>
+                        {{ form.nom }}
+                        {% if form.nom.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.nom.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_description" class="form-label">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.description.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_date_demande" class="form-label">Date de demande <span class="text-danger">*</span></label>
+                        {{ form.date_demande }}
+                        {% if form.date_demande.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.date_demande.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_resultat" class="form-label">Résultat</label>
+                        {{ form.resultat }}
+                        {% if form.resultat.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.resultat.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_date_resultat" class="form-label">Date du résultat</label>
+                        {{ form.date_resultat }}
+                        {% if form.date_resultat.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.date_resultat.errors }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Ne remplir que si les résultats sont disponibles.</div>
+                    </div>
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'consultation_detail' consultation.pk %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> 
+                            {% if examen %}
+                                Enregistrer les modifications
+                            {% else %}
+                                Enregistrer
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

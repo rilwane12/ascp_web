@@ -1,0 +1,268 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Éditer Ordonnance | Asclepios Prescription{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeahead.js-bootstrap4-css@1.0.0/typeaheadjs.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h2">
+            <i class="fas fa-edit me-2"></i> Éditer Ordonnance
+        </h1>
+        <p class="text-muted">
+            Patient: <a href="{% url 'patient_detail' ordonnance.consultation.patient.pk %}" class="text-decoration-none">
+                {{ ordonnance.consultation.patient.nom }} {{ ordonnance.consultation.patient.prenom }}
+            </a> | Date: {{ ordonnance.date_prescription|date:"d/m/Y à H:i" }}
+        </p>
+    </div>
+    <div class="col-auto">
+        <div class="btn-group" role="group">
+            <a href="{% url 'prescription_detail' ordonnance.pk %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Retour aux détails
+            </a>
+            <a href="{% url 'prescription_pdf' ordonnance.pk %}" class="btn btn-outline-success">
+                <i class="fas fa-file-pdf me-2"></i> Générer PDF
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Formulaire d'ajout de médicament -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-plus me-2"></i> Ajouter un médicament
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.medicament.id_for_label }}" class="form-label">Médicament</label>
+                        {{ form.medicament }}
+                        {% if form.medicament.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.medicament.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.quantite.id_for_label }}" class="form-label">Quantité</label>
+                        {{ form.quantite }}
+                        {% if form.quantite.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.quantite.errors }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Ex: 1 boîte, 30 comprimés, 2 flacons, etc.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.posologie.id_for_label }}" class="form-label">Posologie</label>
+                        {{ form.posologie }}
+                        {% if form.posologie.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.posologie.errors }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Ex: 1 comprimé matin, midi et soir pendant 7 jours</div>
+                    </div>
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i> Ajouter à l'ordonnance
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer bg-light">
+                <a href="{% url 'medicament_list' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-pills me-2"></i> Gérer le catalogue de médicaments
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Liste des médicaments -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i> Médicaments prescrits
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for ligne in prescription_lines %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ ligne.medicament }}</h6>
+                                    <p class="text-muted mb-1 small">{{ ligne.quantite }}</p>
+                                    <p class="mb-0">{{ ligne.posologie }}</p>
+                                </div>
+                                <form method="post" action="{% url 'ligne_prescription_delete' ligne.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger btn-delete-confirm" data-bs-toggle="tooltip" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-center py-5">
+                            <div class="text-muted">
+                                <i class="fas fa-prescription fa-3x mb-3"></i>
+                                <p>Aucun médicament ajouté à cette ordonnance</p>
+                                <p class="small">Utilisez le formulaire ci-contre pour ajouter des médicaments</p>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="card-footer bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Total: <strong>{{ prescription_lines.count }}</strong> médicament(s)</span>
+                    <a href="{% url 'prescription_pdf' ordonnance.pk %}" class="btn btn-success btn-sm">
+                        <i class="fas fa-file-pdf me-2"></i> Générer PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Prévisualisation -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-eye me-2"></i> Prévisualisation de l'ordonnance
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="prescription-container">
+                    <div class="prescription-header">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h3>Dr. {{ ordonnance.consultation.doctor.nom }} {{ ordonnance.consultation.doctor.prenom }}</h3>
+                                <p>{{ ordonnance.consultation.doctor.specialite|default:"Médecin" }}</p>
+                                <p>Numéro d'ordre: {{ ordonnance.consultation.doctor.n_ordre }}</p>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <h4>Ordonnance</h4>
+                                <p>Date: {{ ordonnance.date_prescription|date:"d/m/Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="patient-info mb-4">
+                        <div class="row">
+                            <div class="col-12">
+                                <h5>Patient</h5>
+                                <p>
+                                    <strong>{{ ordonnance.consultation.patient.nom }} {{ ordonnance.consultation.patient.prenom }}</strong><br>
+                                    Âge: {{ ordonnance.consultation.patient.age }} ans | 
+                                    Genre: {{ ordonnance.consultation.patient.get_genre_display }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="prescription-content">
+                        <h5>Prescription</h5>
+                        <ul class="list-unstyled">
+                            {% for ligne in prescription_lines %}
+                                <li class="prescription-item">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <h6>{{ ligne.medicament }}</h6>
+                                            <p class="text-muted small">{{ ligne.quantite }}</p>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <p>{{ ligne.posologie }}</p>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% empty %}
+                                <li class="prescription-item text-muted">
+                                    Aucun médicament prescrit
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <div class="prescription-footer mt-4 text-end">
+                        <p>Signature:</p>
+                        <div class="mt-5">
+                            <p>Dr. {{ ordonnance.consultation.doctor.nom }} {{ ordonnance.consultation.doctor.prenom }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
+<script>
+    // Autocomplete pour les médicaments
+    document.addEventListener('DOMContentLoaded', function() {
+        // Setup autocomplete
+        var medicaments = {{ medicaments|safe }};
+        
+        // Initialize Bloodhound
+        var medicamentsSource = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.whitespace,
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            local: medicaments
+        });
+        
+        // Initialize Typeahead
+        $('#medicament-autocomplete').typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 1
+        },
+        {
+            name: 'medicaments',
+            source: medicamentsSource
+        });
+        
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Confirm deletion
+        var deleteButtons = document.querySelectorAll('.btn-delete-confirm');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (!confirm('Êtes-vous sûr de vouloir supprimer ce médicament de l\'ordonnance ?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

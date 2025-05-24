@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordonnance - {{ patient.nom }} {{ patient.prenom }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* En-tête avec logo et QR code */
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+        
+        .logo-container, .qr-code-container {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-container img, .qr-code-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        /* Informations du médecin */
+        .doctor-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .doctor-section h1 {
+            font-size: 24px;
+            margin: 0 0 5px 0;
+            color: #0d6efd;
+        }
+        
+        .doctor-section p {
+            margin: 3px 0;
+            font-size: 14px;
+        }
+        
+        /* Titre ORDONNANCE */
+        .document-title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            margin: 30px 0;
+            text-transform: uppercase;
+            color: #0d6efd;
+            letter-spacing: 2px;
+        }
+        
+        /* Informations patient */
+        .patient-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+        }
+        
+        .patient-info h2 {
+            font-size: 18px;
+            margin: 0 0 10px 0;
+            color: #0d6efd;
+        }
+        
+        .patient-info p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        /* Section prescription */
+        .prescription {
+            margin-top: 20px;
+            min-height: 300px;
+        }
+        
+        .prescription h2 {
+            font-size: 18px;
+            margin: 0 0 15px 0;
+            color: #0d6efd;
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 5px;
+        }
+        
+        .prescription-item {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-left: 3px solid #0d6efd;
+            padding-left: 15px;
+        }
+        
+        .prescription-item h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .prescription-item p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .quantity {
+            color: #666;
+            font-style: italic;
+        }
+        
+        .empty-prescription {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px 0;
+        }
+        
+        /* Pied de page */
+        .footer {
+            margin-top: auto;
+            padding-top: 50px;
+        }
+        
+        .date-section {
+            text-align: right;
+            margin-bottom: 30px;
+        }
+        
+        .signature-section {
+            text-align: right;
+        }
+        
+        .signature-line {
+            display: inline-block;
+            width: 250px;
+            border-bottom: 1px solid #333;
+            margin: 30px 0 10px 0;
+        }
+        
+        /* Styles d'impression */
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .patient-info {
+                break-inside: avoid;
+            }
+            
+            .prescription-item {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- En-tête avec logo et QR code -->
+    <div class="top-header">
+        <div class="logo-container">
+            <img src="/Users/rilwanedjibril/DevMac/asclepios_web/staticfiles/images/Caduceus.svg" alt="Logo Caducée">
+        </div>
+        <div class="qr-code-container">
+            <img src="data:image/png;base64,{{ qr_code_img }}" alt="QR Code">
+        </div>
+    </div>
+
+    <!-- Informations du médecin -->
+    <div class="doctor-section">
+        <h1>Dr. {{ doctor.nom }} {{ doctor.prenom }}</h1>
+        <p>{{ doctor.specialite|default:"Médecine générale" }}</p>
+        <p>Numéro d'ordre: {{ doctor.n_ordre }}</p>
+        <p>Contact: {{ doctor.contact|default:"Non renseigné" }}</p>
+    </div>
+
+    <!-- Titre du document -->
+    <div class="document-title">ORDONNANCE</div>
+
+    <!-- Informations du patient -->
+    <div class="patient-info">
+        <h2>Patient</h2>
+        <p><strong>{{ patient.nom }} {{ patient.prenom }}</strong></p>
+        <p>Âge: {{ patient.age }} ans | Genre: {{ patient.get_genre_display }}</p>
+        {% if patient.adresse %}
+            <p>Adresse: {{ patient.adresse }}</p>
+        {% endif %}
+        {% if patient.contact %}
+            <p>Contact: {{ patient.contact }}</p>
+        {% endif %}
+    </div>
+
+    <!-- Prescription -->
+    <div class="prescription">
+        <h2>Prescription</h2>
+        
+        {% for ligne in prescription_lines %}
+            <div class="prescription-item">
+                <h3>{{ ligne.medicament }}</h3>
+                {% if ligne.quantite %}
+                    <p class="quantity">Quantité: {{ ligne.quantite }}</p>
+                {% endif %}
+                <p>Posologie: {{ ligne.posologie }}</p>
+            </div>
+        {% empty %}
+            <p class="empty-prescription">Aucun médicament prescrit</p>
+        {% endfor %}
+    </div>
+
+    <!-- Pied de page -->
+    <div class="footer">
+        <div class="date-section">
+            <p><strong>Date de l'ordonnance:</strong> {{ date|date:"d/m/Y" }}</p>
+        </div>
+        
+        <div class="signature-section">
+            <p>Signature du médecin:</p>
+            <div class="signature-line"></div>
+            <p>Dr. {{ doctor.nom }} {{ doctor.prenom }}</p>
+        </div>
+    </div>
+</body>
+</html>

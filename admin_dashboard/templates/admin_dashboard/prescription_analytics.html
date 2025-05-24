@@ -1,0 +1,272 @@
+{% extends "admin_dashboard/base_admin.html" %}
+
+{% block title %}Analyse des Prescriptions | Administration Asclepios{% endblock %}
+
+{% block page_title %}Analyse des Prescriptions{% endblock %}
+
+{% block content %}
+<!-- Statistiques générales -->
+<div class="row">
+    <div class="col-xl-6 col-md-6 mb-4">
+        <div class="card stats-card">
+            <div class="card-body">
+                <i class="fas fa-prescription text-warning"></i>
+                <div class="value">{{ total_ordonnances }}</div>
+                <div class="label">Ordonnances au total</div>
+            </div>
+            <div class="card-footer bg-white text-center">
+                <a href="/admin/prescriptions/ordonnance/" class="btn btn-sm btn-outline-warning">Voir toutes</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-6 col-md-6 mb-4">
+        <div class="card stats-card">
+            <div class="card-body">
+                <i class="fas fa-pills text-primary"></i>
+                <div class="value">{{ total_medicaments }}</div>
+                <div class="label">Médicaments au catalogue</div>
+            </div>
+            <div class="card-footer bg-white text-center">
+                <a href="/admin/prescriptions/medicament/" class="btn btn-sm btn-outline-primary">Voir tous</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Graphiques -->
+<div class="row">
+    <!-- Évolution des ordonnances -->
+    <div class="col-lg-12 mb-4">
+        <div class="card">
+            <div class="card-header">Évolution des ordonnances (12 derniers mois)</div>
+            <div class="card-body">
+                <canvas id="ordonnancesMonthlyChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Top médicaments prescrits -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">Top 10 des médicaments prescrits</div>
+            <div class="card-body">
+                <canvas id="topMedicamentsChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fonctionnalités d'exportation et actions rapides -->
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">Exportation des données</div>
+            <div class="card-body">
+                <p>Exportez les données de prescriptions au format de votre choix :</p>
+                <a href="/admin/prescriptions/ordonnance/?_export=csv" class="btn btn-outline-primary m-1">
+                    <i class="fas fa-file-csv me-2"></i>Exporter les ordonnances (CSV)
+                </a>
+                <a href="/admin/prescriptions/medicament/?_export=csv" class="btn btn-outline-success m-1">
+                    <i class="fas fa-file-csv me-2"></i>Exporter les médicaments (CSV)
+                </a>
+                <a href="/admin/prescriptions/ligneprescription/?_export=csv" class="btn btn-outline-warning m-1">
+                    <i class="fas fa-file-csv me-2"></i>Exporter les lignes de prescription (CSV)
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">Actions rapides</div>
+            <div class="card-body">
+                <p>Gérez les prescriptions et les médicaments :</p>
+                <a href="/admin/prescriptions/ordonnance/add/" class="btn btn-outline-warning m-1">
+                    <i class="fas fa-prescription me-2"></i>Nouvelle ordonnance
+                </a>
+                <a href="/admin/prescriptions/medicament/add/" class="btn btn-outline-primary m-1">
+                    <i class="fas fa-pills me-2"></i>Ajouter un médicament
+                </a>
+                <a href="/admin/prescriptions/ligneprescription/add/" class="btn btn-outline-info m-1">
+                    <i class="fas fa-clipboard-list me-2"></i>Nouvelle ligne de prescription
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Catalogue de médicaments -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Catalogue des médicaments</span>
+                <a href="/admin/prescriptions/medicament/" class="btn btn-sm btn-outline-primary">Voir tous</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Forme</th>
+                                <th>Dosage</th>
+                                <th>Prix</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Pour une mise en œuvre réelle, vous devriez passer des données du contrôleur -->
+                            <tr>
+                                <td>Paracétamol</td>
+                                <td>Comprimé</td>
+                                <td>500mg</td>
+                                <td>2.50 €</td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Amoxicilline</td>
+                                <td>Gélule</td>
+                                <td>1000mg</td>
+                                <td>4.80 €</td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Ibuprofène</td>
+                                <td>Comprimé</td>
+                                <td>400mg</td>
+                                <td>3.20 €</td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <!-- Plus de médicaments pourraient être listés ici -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configuration des couleurs
+        const primaryColor = '#4e73df';
+        const successColor = '#1cc88a';
+        const infoColor = '#36b9cc';
+        const warningColor = '#f6c23e';
+        const dangerColor = '#e74a3b';
+        
+        // Graphique d'évolution mensuelle des ordonnances
+        const monthlyData = {{ ordonnances_by_month|safe }};
+        const monthlyLabels = monthlyData.map(item => {
+            const date = new Date(item.month);
+            return `${date.getMonth() + 1}/${date.getFullYear()}`;
+        });
+        const monthlyCounts = monthlyData.map(item => item.count);
+        
+        new Chart(document.getElementById('ordonnancesMonthlyChart'), {
+            type: 'line',
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    label: 'Ordonnances',
+                    data: monthlyCounts,
+                    backgroundColor: 'rgba(246, 194, 62, 0.1)',
+                    borderColor: warningColor,
+                    borderWidth: 2,
+                    pointBackgroundColor: warningColor,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                return `Mois: ${tooltipItems[0].label}`;
+                            },
+                            label: function(context) {
+                                return `Ordonnances: ${context.raw}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Graphique des médicaments les plus prescrits
+        const medicamentsData = {{ top_medicaments|safe }};
+        const medicamentsLabels = medicamentsData.map(item => item.nom);
+        const medicamentsCounts = medicamentsData.map(item => item.count);
+        
+        // Générer un dégradé de couleurs pour les barres
+        const medicamentsColors = medicamentsLabels.map((_, index) => {
+            // Interpoler entre bleu et violet
+            const ratio = index / medicamentsLabels.length;
+            const r = Math.round(70 + ratio * 100);
+            const g = Math.round(130 - ratio * 100);
+            const b = Math.round(180 + ratio * 50);
+            return `rgb(${r}, ${g}, ${b})`;
+        });
+        
+        new Chart(document.getElementById('topMedicamentsChart'), {
+            type: 'bar',
+            data: {
+                labels: medicamentsLabels,
+                datasets: [{
+                    label: 'Nombre de prescriptions',
+                    data: medicamentsCounts,
+                    backgroundColor: medicamentsColors,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',  // Barre horizontale
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+

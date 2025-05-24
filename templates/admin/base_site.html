@@ -1,0 +1,313 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Asclepios Admin') }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --primary-color: #4e73df;
+    --success-color: #1cc88a;
+    --info-color: #36b9cc;
+    --warning-color: #f6c23e;
+    --danger-color: #e74a3b;
+    --secondary-color: #858796;
+    --light-color: #f8f9fc;
+    --dark-color: #5a5c69;
+  }
+
+  /* En-tête */
+  #header {
+    background: var(--primary-color);
+    color: white;
+    height: auto;
+    padding: 15px 40px;
+  }
+  
+  #header a:link, #header a:visited {
+    color: white;
+  }
+  
+  #branding h1 {
+    font-weight: 700;
+  }
+  
+  #branding h1 a:link, #branding h1 a:visited {
+    color: white;
+  }
+  
+  #user-tools {
+    padding: 10px 0;
+  }
+  
+  /* Fil d'Ariane */
+  div.breadcrumbs {
+    background: #2c3e50;
+    color: #fff;
+    padding: 15px 40px;
+  }
+  
+  div.breadcrumbs a {
+    color: #f8f9fa;
+  }
+  
+  /* Eléments du module */
+  .module h2, .module caption, .inline-group h2 {
+    background: var(--primary-color);
+  }
+  
+  /* Liens */
+  a:link, a:visited {
+    color: var(--primary-color);
+  }
+  
+  /* Boutons */
+  .button, input[type=submit], input[type=button], .submit-row input, a.button {
+    background: var(--primary-color);
+  }
+  
+  .button:hover, input[type=submit]:hover, input[type=button]:hover {
+    background: #3a5ccc;
+  }
+  
+  .button.default, input[type=submit].default, .submit-row input.default {
+    background: var(--success-color);
+  }
+  
+  .button.default:hover, input[type=submit].default:hover {
+    background: #17a673;
+  }
+  
+  /* Tableau de bord */
+  .dashboard-link {
+    display: inline-block;
+    font-weight: bold;
+    padding: 10px 20px;
+    margin: 15px 0;
+    background-color: var(--success-color);
+    color: white !important;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s, transform 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .dashboard-link:hover {
+    background-color: #17a673;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+  
+  .dashboard-link i {
+    margin-right: 8px;
+  }
+  
+  .dashboard-section {
+    background-color: var(--light-color);
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid #e3e6f0;
+  }
+  
+  .dashboard-section p {
+    margin: 0;
+    color: var(--dark-color);
+  }
+  
+  /* Améliorations visuelles */
+  .module {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  
+  .module table {
+    border-radius: 0 0 5px 5px;
+  }
+  
+  .object-tools {
+    margin-top: 0;
+  }
+  
+  .object-tools a {
+    background-color: var(--success-color);
+  }
+  
+  .object-tools a:hover {
+    background-color: #17a673;
+  }
+  
+  /* Améliorations pour les messages */
+  .messagelist li {
+    border-radius: 5px;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+  }
+  
+  .messagelist li.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+  
+  .messagelist li.warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+  }
+  
+  .messagelist li.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+  
+  /* Liste des applications */
+  .app-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .app-item {
+    flex: 1 1 300px;
+    background-color: white;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .app-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  
+  .app-item h2 {
+    background: var(--primary-color);
+    color: white;
+    padding: 15px;
+    margin: 0;
+  }
+  
+  .app-item table {
+    width: 100%;
+  }
+  
+  .app-item a {
+    display: block;
+    padding: 8px 15px;
+    transition: background-color 0.2s;
+  }
+  
+  .app-item a:hover {
+    background-color: var(--light-color);
+  }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+  <a href="{% url 'admin:index' %}">
+    <i class="fas fa-stethoscope"></i> {{ site_header|default:_('Asclepios Administration') }}
+  </a>
+</h1>
+{% endblock %}
+
+{% block welcome-msg %}
+  {% trans 'Welcome,' %}
+  <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+  {% if user.is_superuser %}
+    <span class="badge" style="background-color: var(--warning-color); color: white; padding: 3px 6px; border-radius: 4px; font-size: 0.7em;">
+      <i class="fas fa-star"></i> Superuser
+    </span>
+  {% endif %}
+{% endblock %}
+
+{% block userlinks %}
+  {% if dashboard_url %}
+    <a href="{{ dashboard_url }}" style="margin-right: 15px;">
+      <i class="fas fa-tachometer-alt"></i> {% trans 'Dashboard' %}
+    </a>
+  {% endif %}
+  
+  {% if user.has_usable_password %}
+    <a href="{% url 'admin:password_change' %}">
+      <i class="fas fa-key"></i> {% trans 'Change password' %}
+    </a> /
+  {% endif %}
+  
+  <a href="{% url 'admin:logout' %}">
+    <i class="fas fa-sign-out-alt"></i> {% trans 'Log out' %}
+  </a>
+{% endblock %}
+
+{% block nav-global %}
+  {% if dashboard_url %}
+    <div class="dashboard-section">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <p>Accédez au tableau de bord avancé pour visualiser des statistiques détaillées et gérer votre application.</p>
+        <a href="{{ dashboard_url }}" class="dashboard-link">
+          <i class="fas fa-tachometer-alt"></i> Tableau de bord
+        </a>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  {% if app_list %}
+    <div class="app-list">
+      {% for app in app_list %}
+        <div class="app-item">
+          <h2>
+            {% if app.app_url %}
+              <a href="{{ app.app_url }}">{{ app.name }}</a>
+            {% else %}
+              {{ app.name }}
+            {% endif %}
+          </h2>
+          
+          {% if app.app_url %}
+            <table>
+              {% for model in app.models %}
+                <tr>
+                  {% if model.admin_url %}
+                    <td class="model-name">
+                      <a href="{{ model.admin_url }}">{{ model.name }}</a>
+                    </td>
+                  {% else %}
+                    <td class="model-name">{{ model.name }}</td>
+                  {% endif %}
+                  
+                  <td class="model-actions" style="text-align: right; padding-right: 15px;">
+                    {% if model.add_url %}
+                      <a href="{{ model.add_url }}" style="margin-left: 10px; color: var(--success-color);">
+                        <i class="fas fa-plus"></i> {% trans 'Add' %}
+                      </a>
+                    {% endif %}
+                    
+                    {% if model.admin_url %}
+                      <a href="{{ model.admin_url }}" style="margin-left: 10px; color: var(--info-color);">
+                        <i class="fas fa-list"></i> {% trans 'List' %}
+                      </a>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </table>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>{% trans "You don't have permission to view or edit anything." %}</p>
+  {% endif %}
+</div>
+{% endblock %}
+

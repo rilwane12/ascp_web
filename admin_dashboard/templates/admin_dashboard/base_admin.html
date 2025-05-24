@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Administration Asclepios{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --sidebar-width: 250px;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background-color: #343a40;
+            padding-top: 20px;
+            color: white;
+            overflow-y: auto;
+            z-index: 999;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.75);
+            padding: 10px 20px;
+            margin: 5px 0;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+        }
+        
+        .topbar {
+            background-color: white;
+            border-bottom: 1px solid #dee2e6;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 15px 20px;
+            font-weight: bold;
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 15px;
+            transition: transform 0.3s;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stats-card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .stats-card .label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+        
+        .stats-card i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                overflow: visible;
+            }
+            
+            .sidebar .nav-link span {
+                display: none;
+            }
+            
+            .sidebar .nav-link i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="text-center mb-4 d-none d-md-block">
+            <h4>Asclepios</h4>
+            <div>Administration</div>
+        </div>
+        
+        <div class="text-center mb-4 d-md-none">
+            <h4><i class="fas fa-stethoscope"></i></h4>
+        </div>
+        
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a href="{% url 'admin_dashboard:dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Tableau de bord</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'admin_dashboard:patient_analytics' %}" class="nav-link {% if request.resolver_match.url_name == 'patient_analytics' %}active{% endif %}">
+                    <i class="fas fa-users"></i>
+                    <span>Patients</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'admin_dashboard:consultation_analytics' %}" class="nav-link {% if request.resolver_match.url_name == 'consultation_analytics' %}active{% endif %}">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Consultations</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'admin_dashboard:prescription_analytics' %}" class="nav-link {% if request.resolver_match.url_name == 'prescription_analytics' %}active{% endif %}">
+                    <i class="fas fa-prescription"></i>
+                    <span>Prescriptions</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'admin_dashboard:system_logs' %}" class="nav-link {% if request.resolver_match.url_name == 'system_logs' %}active{% endif %}">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Journaux</span>
+                </a>
+            </li>
+            <li class="nav-item mt-3">
+                <hr class="dropdown-divider bg-light opacity-25">
+            </li>
+            <li class="nav-item">
+                <a href="/admin/" class="nav-link">
+                    <i class="fas fa-cogs"></i>
+                    <span>Administration Django</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Retour au site</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="topbar">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-0">{% block page_title %}Tableau de bord{% endblock %}</h1>
+                <div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i> {{ request.user.full_name }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="/admin/doctors/doctor/{{ request.user.id }}/change/"><i class="fas fa-user-cog me-2"></i>Mon profil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout/"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% block content %}{% endblock %}
+    </div>
+    
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

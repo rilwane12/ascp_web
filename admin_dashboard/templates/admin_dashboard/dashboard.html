@@ -1,0 +1,314 @@
+{% extends "admin_dashboard/base_admin.html" %}
+
+{% block title %}Tableau de bord | Administration Asclepios{% endblock %}
+
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<!-- Statistiques générales -->
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card">
+            <div class="card-body">
+                <i class="fas fa-users text-primary"></i>
+                <div class="value">{{ stats.total_patients }}</div>
+                <div class="label">Patients</div>
+            </div>
+            <div class="card-footer bg-white text-center">
+                <a href="/admin/patients/patient/" class="btn btn-sm btn-outline-primary">Voir tous</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card">
+            <div class="card-body">
+                <i class="fas fa-user-md text-success"></i>
+                <div class="value">{{ stats.total_doctors }}</div>
+                <div class="label">Médecins actifs</div>
+            </div>
+            <div class="card-footer bg-white text-center">
+                <a href="/admin/doctors/doctor/" class="btn btn-sm btn-outline-success">Voir tous</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card">
+            <div class="card-body">
+                <i class="fas fa-calendar-check text-info"></i>
+                <div class="value">{{ stats.total_consultations }}</div>
+                <div class="label">Consultations</div>
+            </div>
+            <div class="card-footer bg-white text-center">
+                <a href="/admin/examinations/consultation/" class="btn btn-sm btn-outline-info">Voir toutes</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card">
+            <div class="card-body">
+                <i class="fas fa-prescription text-warning"></i>
+                <div class="value">{{ stats.total_ordonnances }}</div>
+                <div class="label">Ordonnances</div>
+            </div>
+            <div class="card-footer bg-white text-center">
+                <a href="/admin/prescriptions/ordonnance/" class="btn btn-sm btn-outline-warning">Voir toutes</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Graphiques -->
+<div class="row">
+    <!-- Consultations par jour -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Consultations (30 derniers jours)</span>
+                <a href="{% url 'admin_dashboard:consultation_analytics' %}" class="btn btn-sm btn-outline-primary">Plus de détails</a>
+            </div>
+            <div class="card-body">
+                <canvas id="consultationsChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Répartition des patients par genre -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Patients par genre</span>
+                <a href="{% url 'admin_dashboard:patient_analytics' %}" class="btn btn-sm btn-outline-primary">Plus de détails</a>
+            </div>
+            <div class="card-body">
+                <canvas id="patientsGenderChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Consultations par médecin -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">Top 5 des médecins par nombre de consultations</div>
+            <div class="card-body">
+                <canvas id="doctorConsultationsChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activités récentes -->
+<div class="row">
+    <!-- Dernières consultations -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Dernières consultations</span>
+                <a href="/admin/examinations/consultation/" class="btn btn-sm btn-outline-primary">Voir toutes</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Médecin</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for consultation in recent_consultations %}
+                            <tr>
+                                <td>{{ consultation.patient.full_name }}</td>
+                                <td>{{ consultation.doctor.full_name }}</td>
+                                <td>{{ consultation.date|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    <a href="/admin/examinations/consultation/{{ consultation.id }}/change/" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">Aucune consultation récente</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Derniers patients -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Derniers patients enregistrés</span>
+                <a href="/admin/patients/patient/" class="btn btn-sm btn-outline-primary">Voir tous</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Âge</th>
+                                <th>Genre</th>
+                                <th>Date d'enregistrement</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for patient in recent_patients %}
+                            <tr>
+                                <td>{{ patient.full_name }}</td>
+                                <td>{{ patient.age }}</td>
+                                <td>{{ patient.get_genre_display }}</td>
+                                <td>{{ patient.created_at|date:"d/m/Y" }}</td>
+                                <td>
+                                    <a href="/admin/patients/patient/{{ patient.id }}/change/" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">Aucun patient récent</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configuration des couleurs
+        const primaryColor = '#4e73df';
+        const successColor = '#1cc88a';
+        const infoColor = '#36b9cc';
+        const warningColor = '#f6c23e';
+        const dangerColor = '#e74a3b';
+        
+        // Graphique des consultations par jour
+        const consultationsData = {{ chart_data.consultations_by_day|safe }};
+        const consultationsDates = consultationsData.map(item => {
+            const date = new Date(item.day);
+            return `${date.getDate()}/${date.getMonth() + 1}`;
+        });
+        const consultationsCounts = consultationsData.map(item => item.count);
+        
+        new Chart(document.getElementById('consultationsChart'), {
+            type: 'line',
+            data: {
+                labels: consultationsDates,
+                datasets: [{
+                    label: 'Nombre de consultations',
+                    data: consultationsCounts,
+                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                    borderColor: primaryColor,
+                    borderWidth: 2,
+                    pointBackgroundColor: primaryColor,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // Graphique de la répartition par genre
+        const genderData = {{ chart_data.patients_by_gender|safe }};
+        const genderLabels = genderData.map(item => item.genre === 'M' ? 'Hommes' : 'Femmes');
+        const genderCounts = genderData.map(item => item.count);
+        
+        new Chart(document.getElementById('patientsGenderChart'), {
+            type: 'doughnut',
+            data: {
+                labels: genderLabels,
+                datasets: [{
+                    data: genderCounts,
+                    backgroundColor: [primaryColor, dangerColor],
+                    hoverBackgroundColor: [
+                        'rgba(78, 115, 223, 0.8)',
+                        'rgba(231, 74, 59, 0.8)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+        
+        // Graphique des consultations par médecin
+        const doctorData = {{ chart_data.consultations_by_doctor|safe }};
+        const doctorLabels = doctorData.map(item => `Dr. ${item.doctor__nom} ${item.doctor__prenom}`);
+        const doctorCounts = doctorData.map(item => item.count);
+        
+        new Chart(document.getElementById('doctorConsultationsChart'), {
+            type: 'bar',
+            data: {
+                labels: doctorLabels,
+                datasets: [{
+                    label: 'Nombre de consultations',
+                    data: doctorCounts,
+                    backgroundColor: [
+                        primaryColor,
+                        successColor,
+                        infoColor,
+                        warningColor,
+                        dangerColor
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+

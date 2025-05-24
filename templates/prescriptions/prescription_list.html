@@ -1,0 +1,208 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Ordonnances | Asclepios Prescription{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h2">
+            <i class="fas fa-prescription me-2"></i> Ordonnances
+        </h1>
+        <p class="text-muted">Consultez toutes les ordonnances délivrées</p>
+    </div>
+    <div class="col-auto">
+        <a href="{% url 'medicament_list' %}" class="btn btn-outline-primary">
+            <i class="fas fa-pills me-2"></i> Gérer les médicaments
+        </a>
+    </div>
+</div>
+
+<!-- Filtres -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" name="search" class="form-control" placeholder="Rechercher un patient..." value="{{ request.GET.search|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="date_range" class="form-select">
+                            <option value="">Période</option>
+                            <option value="today" {% if request.GET.date_range == 'today' %}selected{% endif %}>Aujourd'hui</option>
+                            <option value="yesterday" {% if request.GET.date_range == 'yesterday' %}selected{% endif %}>Hier</option>
+                            <option value="week" {% if request.GET.date_range == 'week' %}selected{% endif %}>Cette semaine</option>
+                            <option value="month" {% if request.GET.date_range == 'month' %}selected{% endif %}>Ce mois</option>
+                            <option value="year" {% if request.GET.date_range == 'year' %}selected{% endif %}>Cette année</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="medication" class="form-select">
+                            <option value="">Médicament</option>
+                            {% for medicament in medications %}
+                                <option value="{{ medicament.id }}" {% if request.GET.medication == medicament.id|stringformat:"i" %}selected{% endif %}>{{ medicament.nom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des ordonnances -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Patient</th>
+                                <th>Docteur</th>
+                                <th>Médicaments</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ordonnance in ordonnances %}
+                                <tr>
+                                    <td>{{ ordonnance.date_prescription|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'patient_detail' ordonnance.consultation.patient.pk %}" class="text-decoration-none fw-bold">
+                                            {{ ordonnance.consultation.patient.nom }} {{ ordonnance.consultation.patient.prenom }}
+                                        </a>
+                                        <div class="small text-muted">{{ ordonnance.consultation.patient.age }} ans</div>
+                                    </td>
+                                    <td>
+                                        Dr. {{ ordonnance.consultation.doctor.nom }} {{ ordonnance.consultation.doctor.prenom }}
+                                    </td>
+                                    <td>
+                                        {% with meds=ordonnance.prescriptions.all %}
+                                            {% if meds %}
+                                                {% for med in meds|slice:":3" %}
+                                                    <span class="badge bg-light text-dark">{{ med.medicament }}</span>
+                                                {% endfor %}
+                                                {% if meds.count > 3 %}
+                                                    <span class="badge bg-secondary">+{{ meds.count|add:"-3" }}</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'prescription_detail' ordonnance.pk %}" class="btn btn-outline-primary" data-bs-toggle="tooltip" title="Voir détails">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'prescription_edit' ordonnance.pk %}" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'prescription_pdf' ordonnance.pk %}" class="btn btn-outline-success" data-bs-toggle="tooltip" title="Télécharger PDF">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="fas fa-prescription fa-3x mb-3"></i>
+                                            <p>Aucune ordonnance trouvée</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if ordonnances.has_other_pages %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if ordonnances.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.date_range %}&date_range={{ request.GET.date_range }}{% endif %}{% if request.GET.medication %}&medication={{ request.GET.medication }}{% endif %}">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ ordonnances.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.date_range %}&date_range={{ request.GET.date_range }}{% endif %}{% if request.GET.medication %}&medication={{ request.GET.medication }}{% endif %}">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#"><i class="fas fa-angle-double-left"></i></a>
+                    </li>
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#"><i class="fas fa-angle-left"></i></a>
+                    </li>
+                {% endif %}
+                
+                {% for i in ordonnances.paginator.page_range %}
+                    {% if ordonnances.number == i %}
+                        <li class="page-item active">
+                            <a class="page-link" href="#">{{ i }}</a>
+                        </li>
+                    {% elif i > ordonnances.number|add:'-3' and i < ordonnances.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ i }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.date_range %}&date_range={{ request.GET.date_range }}{% endif %}{% if request.GET.medication %}&medication={{ request.GET.medication }}{% endif %}">{{ i }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if ordonnances.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ ordonnances.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.date_range %}&date_range={{ request.GET.date_range }}{% endif %}{% if request.GET.medication %}&medication={{ request.GET.medication }}{% endif %}">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ ordonnances.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.date_range %}&date_range={{ request.GET.date_range }}{% endif %}{% if request.GET.medication %}&medication={{ request.GET.medication }}{% endif %}">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#"><i class="fas fa-angle-right"></i></a>
+                    </li>
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#"><i class="fas fa-angle-double-right"></i></a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+{% endblock %}

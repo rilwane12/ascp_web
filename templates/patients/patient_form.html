@@ -1,0 +1,212 @@
+{% extends 'base/base.html' %}
+
+{% block title %}
+    {% if action == 'create' %}
+        Nouveau Patient
+    {% else %}
+        Modifier Patient
+    {% endif %}
+    | Asclepios Prescription
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h2">
+            {% if action == 'create' %}
+                <i class="fas fa-user-plus me-2"></i> Nouveau Patient
+            {% else %}
+                <i class="fas fa-user-edit me-2"></i> Modifier Patient
+            {% endif %}
+        </h1>
+        <p class="text-muted">
+            {% if action == 'create' %}
+                Enregistrez un nouveau patient dans le système
+            {% else %}
+                Modifiez les informations de {{ patient.nom }} {{ patient.prenom }}
+            {% endif %}
+        </p>
+    </div>
+    <div class="col-auto">
+        {% if action == 'edit' %}
+            <a href="{% url 'patient_detail' patient.pk %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Retour au patient
+            </a>
+        {% else %}
+            <a href="{% url 'patient_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Retour à la liste
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-user me-2"></i> Informations Personnelles
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="id_nom" class="form-label">Nom <span class="text-danger">*</span></label>
+                                        {{ form.nom }}
+                                        {% if form.nom.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.nom.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="id_prenom" class="form-label">Prénom <span class="text-danger">*</span></label>
+                                        {{ form.prenom }}
+                                        {% if form.prenom.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.prenom.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="id_age" class="form-label">Âge <span class="text-danger">*</span></label>
+                                            {{ form.age }}
+                                            {% if form.age.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {{ form.age.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="id_genre" class="form-label">Genre <span class="text-danger">*</span></label>
+                                            {{ form.genre }}
+                                            {% if form.genre.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {{ form.genre.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="id_profession" class="form-label">Profession</label>
+                                        {{ form.profession }}
+                                        {% if form.profession.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.profession.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-address-card me-2"></i> Coordonnées et Informations Médicales
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="id_adresse" class="form-label">Adresse</label>
+                                        {{ form.adresse }}
+                                        {% if form.adresse.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.adresse.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="id_contact" class="form-label">Contact</label>
+                                        {{ form.contact }}
+                                        {% if form.contact.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.contact.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="id_groupe_sanguin" class="form-label">Groupe Sanguin</label>
+                                            {{ form.groupe_sanguin }}
+                                            {% if form.groupe_sanguin.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {{ form.groupe_sanguin.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="id_n_donneur_sang" class="form-label">N° Donneur de Sang</label>
+                                            {{ form.n_donneur_sang }}
+                                            {% if form.n_donneur_sang.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {{ form.n_donneur_sang.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="id_allergies" class="form-label">Allergies</label>
+                                        {{ form.allergies }}
+                                        {% if form.allergies.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.allergies.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <div>
+                            {% if action == 'edit' %}
+                                <a href="{% url 'patient_detail' patient.pk %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i> Annuler
+                                </a>
+                            {% else %}
+                                <a href="{% url 'patient_list' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i> Annuler
+                                </a>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {% if action == 'create' %}
+                                <button type="submit" name="save_and_add_consultation" class="btn btn-success me-2">
+                                    <i class="fas fa-stethoscope me-2"></i> Enregistrer et Ajouter Consultation
+                                </button>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Enregistrer
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

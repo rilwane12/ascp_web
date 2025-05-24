@@ -1,0 +1,344 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Consultation {{ consultation.date|date:"d/m/Y" }} | Asclepios Prescription{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h2">
+            <i class="fas fa-stethoscope me-2"></i> Consultation du {{ consultation.date|date:"d/m/Y à H:i" }}
+        </h1>
+        <p class="text-muted">
+            Patient: <a href="{% url 'patient_detail' consultation.patient.pk %}" class="text-decoration-none">
+                {{ consultation.patient.nom }} {{ consultation.patient.prenom }}
+            </a> | Médecin: Dr. {{ consultation.doctor.nom }} {{ consultation.doctor.prenom }}
+        </p>
+    </div>
+    <div class="col-auto">
+        <div class="btn-group" role="group">
+            <a href="{% url 'consultation_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Retour à la liste
+            </a>
+            {% if not consultation.ordonnance %}
+                <a href="{% url 'prescription_create' consultation.pk %}" class="btn btn-success">
+                    <i class="fas fa-prescription me-2"></i> Créer ordonnance
+                </a>
+            {% else %}
+                <a href="{% url 'prescription_detail' consultation.ordonnance.pk %}" class="btn btn-primary">
+                    <i class="fas fa-prescription me-2"></i> Voir ordonnance
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Examen clinique -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-clipboard-list me-2"></i> Examen Clinique
+                </h5>
+                {% if examen_clinique %}
+                    <a href="{% url 'clinical_exam_edit' consultation.pk %}" class="btn btn-sm btn-light">
+                        <i class="fas fa-edit me-2"></i> Modifier
+                    </a>
+                {% else %}
+                    <a href="{% url 'clinical_exam_create' consultation.pk %}" class="btn btn-sm btn-light">
+                        <i class="fas fa-plus me-2"></i> Ajouter
+                    </a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if examen_clinique %}
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h6 class="fw-bold border-bottom pb-2">Constantes vitales</h6>
+                            <div class="row">
+                                <div class="col-md-2 mb-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5>{{ examen_clinique.poids|default:"-" }}</h5>
+                                            <small class="text-muted">Poids</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5>{{ examen_clinique.taille|default:"-" }}</h5>
+                                            <small class="text-muted">Taille</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5>{{ examen_clinique.temperature|default:"-" }}</h5>
+                                            <small class="text-muted">Température</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5>{{ examen_clinique.fr_cardiaque|default:"-" }}</h5>
+                                            <small class="text-muted">FC</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5>{{ examen_clinique.fr_respiratoire|default:"-" }}</h5>
+                                            <small class="text-muted">FR</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5>{{ examen_clinique.sa_o2|default:"-" }}</h5>
+                                            <small class="text-muted">SaO2</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold border-bottom pb-2">Antécédents et Mode de vie</h6>
+                            <dl class="row">
+                                <dt class="col-sm-4">Antécédents médicaux</dt>
+                                <dd class="col-sm-8">{{ examen_clinique.atcd_med|default:"-"|linebreaks }}</dd>
+                                
+                                <dt class="col-sm-4">Antécédents chirurgicaux</dt>
+                                <dd class="col-sm-8">{{ examen_clinique.atcd_chir|default:"-"|linebreaks }}</dd>
+                                
+                                <dt class="col-sm-4">Antécédents familiaux</dt>
+                                <dd class="col-sm-8">{{ examen_clinique.atcd_fam|default:"-"|linebreaks }}</dd>
+                                
+                                <dt class="col-sm-4">Mode de vie</dt>
+                                <dd class="col-sm-8">{{ examen_clinique.mode_vie|default:"-"|linebreaks }}</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold border-bottom pb-2">Plaintes et Examens</h6>
+                            <dl class="row">
+                                <dt class="col-sm-4">Plaintes</dt>
+                                <dd class="col-sm-8">{{ examen_clinique.plaintes|default:"-"|linebreaks }}</dd>
+                                
+                                <dt class="col-sm-4">Examen physique</dt>
+                                <dd class="col-sm-8">{{ examen_clinique.examen_physique|default:"-"|linebreaks }}</dd>
+                                
+                                {% if examen_clinique.examen_physique_1 %}
+                                <dt class="col-sm-4">Examen physique (suite)</dt>
+                                <dd class="col-sm-8">{{ examen_clinique.examen_physique_1|linebreaks }}</dd>
+                                {% endif %}
+                                
+                                {% if examen_clinique.examen_physique_2 %}
+                                <dt class="col-sm-4">Examen physique (suite)</dt>
+                                <dd class="col-sm-8">{{ examen_clinique.examen_physique_2|linebreaks }}</dd>
+                                {% endif %}
+                                
+                                {% if examen_clinique.examen_physique_3 %}
+                                <dt class="col-sm-4">Examen physique (suite)</dt>
+                                <dd class="col-sm-8">{{ examen_clinique.examen_physique_3|linebreaks }}</dd>
+                                {% endif %}
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h6 class="fw-bold border-bottom pb-2">Diagnostics et Notes</h6>
+                            <dl class="row">
+                                <dt class="col-sm-3">Hypothèses diagnostiques</dt>
+                                <dd class="col-sm-9">{{ examen_clinique.hypothese_diagnostics|default:"-"|linebreaks }}</dd>
+                                
+                                <dt class="col-sm-3">Diagnostics</dt>
+                                <dd class="col-sm-9">{{ examen_clinique.diagnostics|default:"-"|linebreaks }}</dd>
+                                
+                                <dt class="col-sm-3">Note du médecin</dt>
+                                <dd class="col-sm-9">{{ examen_clinique.note_medecin|default:"-"|linebreaks }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                        <p class="lead">Aucun examen clinique n'a été enregistré pour cette consultation.</p>
+                        <a href="{% url 'clinical_exam_create' consultation.pk %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i> Ajouter un examen clinique
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Examens paracliniques -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-vial me-2"></i> Examens Paracliniques
+                </h5>
+                <a href="{% url 'paraclinical_exam_create' consultation.pk %}" class="btn btn-sm btn-light">
+                    <i class="fas fa-plus me-2"></i> Ajouter
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nom</th>
+                                <th>Description</th>
+                                <th>Date de demande</th>
+                                <th>Résultat</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for examen in examens_paracliniques %}
+                                <tr>
+                                    <td>{{ examen.nom }}</td>
+                                    <td>{{ examen.description|truncatechars:50|default:"-" }}</td>
+                                    <td>{{ examen.date_demande|date:"d/m/Y" }}</td>
+                                    <td>
+                                        {% if examen.resultat %}
+                                            {{ examen.resultat|truncatechars:50 }}
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">En attente</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'paraclinical_exam_edit' consultation.pk examen.pk %}" class="btn btn-outline-primary" data-bs-toggle="tooltip" title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'paraclinical_exam_delete' consultation.pk examen.pk %}" class="btn btn-outline-danger btn-delete-confirm" data-bs-toggle="tooltip" title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="fas fa-vial fa-3x mb-3"></i>
+                                            <p>Aucun examen paraclinique enregistré</p>
+                                            <a href="{% url 'paraclinical_exam_create' consultation.pk %}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-plus me-2"></i> Ajouter un examen paraclinique
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ordonnance -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-prescription me-2"></i> Ordonnance
+                </h5>
+                {% if not consultation.ordonnance %}
+                    <a href="{% url 'prescription_create' consultation.pk %}" class="btn btn-sm btn-light">
+                        <i class="fas fa-plus me-2"></i> Créer une ordonnance
+                    </a>
+                {% else %}
+                    <div class="btn-group btn-group-sm">
+                        <a href="{% url 'prescription_edit' consultation.ordonnance.pk %}" class="btn btn-light">
+                            <i class="fas fa-edit me-2"></i> Modifier
+                        </a>
+                        <a href="{% url 'prescription_pdf' consultation.ordonnance.pk %}" class="btn btn-light">
+                            <i class="fas fa-file-pdf me-2"></i> Télécharger PDF
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if consultation.ordonnance %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold border-bottom pb-2">Prescriptions</h6>
+                            <ul class="list-group list-group-flush">
+                                {% for ligne in consultation.ordonnance.prescriptions.all %}
+                                    <li class="list-group-item">
+                                        <div class="fw-bold">{{ ligne.medicament }}</div>
+                                        <div class="text-muted small">{{ ligne.quantite }}</div>
+                                        <div>{{ ligne.posologie }}</div>
+                                    </li>
+                                {% empty %}
+                                    <li class="list-group-item text-muted">Aucun médicament prescrit</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            {% if consultation.ordonnance.image %}
+                                <h6 class="fw-bold border-bottom pb-2">Image de l'ordonnance</h6>
+                                <img src="{{ consultation.ordonnance.image.url }}" alt="Ordonnance" class="img-fluid img-thumbnail">
+                            {% else %}
+                                <h6 class="fw-bold border-bottom pb-2">Prévisualisation</h6>
+                                <div class="text-center py-5">
+                                    <i class="fas fa-file-pdf fa-3x text-muted mb-3"></i>
+                                    <p>Générez un PDF pour voir l'ordonnance complète</p>
+                                    <a href="{% url 'prescription_pdf' consultation.ordonnance.pk %}" class="btn btn-primary">
+                                        <i class="fas fa-file-pdf me-2"></i> Générer PDF
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-prescription fa-3x text-muted mb-3"></i>
+                        <p class="lead">Aucune ordonnance n'a été créée pour cette consultation.</p>
+                        <a href="{% url 'prescription_create' consultation.pk %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i> Créer une ordonnance
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Confirm deletion
+        var deleteButtons = document.querySelectorAll('.btn-delete-confirm');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (!confirm('Êtes-vous sûr de vouloir supprimer cet examen ? Cette action est irréversible.')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

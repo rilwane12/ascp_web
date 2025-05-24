@@ -1,0 +1,232 @@
+{% extends "admin_dashboard/base_admin.html" %}
+
+{% block title %}Journaux Système | Administration Asclepios{% endblock %}
+
+{% block page_title %}Journaux d'Activité du Système{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Filtres de recherche</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="date_range" class="form-label">Période</label>
+                        <select class="form-select" id="date_range" name="date_range">
+                            <option value="today" {% if request.GET.date_range == 'today' %}selected{% endif %}>Aujourd'hui</option>
+                            <option value="yesterday" {% if request.GET.date_range == 'yesterday' %}selected{% endif %}>Hier</option>
+                            <option value="week" {% if request.GET.date_range == 'week' %}selected{% endif %}>7 derniers jours</option>
+                            <option value="month" {% if request.GET.date_range == 'month' %}selected{% endif %}>30 derniers jours</option>
+                            <option value="all" {% if request.GET.date_range == 'all' %}selected{% endif %}>Tous</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="user" class="form-label">Utilisateur</label>
+                        <input type="text" class="form-control" id="user" name="user" placeholder="Tous les utilisateurs" value="{{ request.GET.user }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="action" class="form-label">Action</label>
+                        <input type="text" class="form-control" id="action" name="action" placeholder="Toutes les actions" value="{{ request.GET.action }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="severity" class="form-label">Sévérité</label>
+                        <select class="form-select" id="severity" name="severity">
+                            <option value="">Toutes les sévérités</option>
+                            <option value="info" {% if request.GET.severity == 'info' %}selected{% endif %}>Information</option>
+                            <option value="success" {% if request.GET.severity == 'success' %}selected{% endif %}>Succès</option>
+                            <option value="warning" {% if request.GET.severity == 'warning' %}selected{% endif %}>Avertissement</option>
+                            <option value="error" {% if request.GET.severity == 'error' %}selected{% endif %}>Erreur</option>
+                        </select>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-search me-2"></i>Rechercher
+                        </button>
+                        <a href="{% url 'admin_dashboard:system_logs' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-undo me-2"></i>Réinitialiser
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Journaux d'activité</h5>
+                <div>
+                    <button type="button" class="btn btn-sm btn-outline-primary me-2" id="refreshLogs">
+                        <i class="fas fa-sync-alt me-1"></i>Actualiser
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-success" id="exportLogs">
+                        <i class="fas fa-file-export me-1"></i>Exporter
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 180px;">Horodatage</th>
+                                <th style="width: 150px;">Utilisateur</th>
+                                <th>Action</th>
+                                <th style="width: 110px;">Sévérité</th>
+                                <th style="width: 80px;">Détails</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in system_logs %}
+                            <tr>
+                                <td>{{ log.timestamp|date:"d/m/Y H:i:s" }}</td>
+                                <td>{{ log.user }}</td>
+                                <td>{{ log.action }}</td>
+                                <td>
+                                    {% if log.severity == 'info' %}
+                                    <span class="badge bg-info">Information</span>
+                                    {% elif log.severity == 'success' %}
+                                    <span class="badge bg-success">Succès</span>
+                                    {% elif log.severity == 'warning' %}
+                                    <span class="badge bg-warning text-dark">Avertissement</span>
+                                    {% elif log.severity == 'error' %}
+                                    <span class="badge bg-danger">Erreur</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ log.severity }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#logDetailsModal" data-log-id="{{ forloop.counter }}">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4">
+                                    <i class="fas fa-info-circle me-2 text-info"></i>
+                                    Aucune activité à afficher pour les critères sélectionnés.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer">
+                <nav aria-label="Pagination des journaux">
+                    <ul class="pagination justify-content-center mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Précédent</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Suivant</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal des détails du journal -->
+<div class="modal fade" id="logDetailsModal" tabindex="-1" aria-labelledby="logDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logDetailsModalLabel">Détails de l'activité</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Date :</strong> <span id="modal-date">18/05/2025 16:45:23</span></p>
+                        <p><strong>Utilisateur :</strong> <span id="modal-user">admin</span></p>
+                        <p><strong>Action :</strong> <span id="modal-action">Connexion</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Sévérité :</strong> <span id="modal-severity">
+                            <span class="badge bg-info">Information</span>
+                        </span></p>
+                        <p><strong>Adresse IP :</strong> <span id="modal-ip">192.168.1.5</span></p>
+                        <p><strong>Navigateur :</strong> <span id="modal-browser">Chrome 120.0.0</span></p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Détails supplémentaires</h6>
+                    </div>
+                    <div class="card-body">
+                        <pre class="mb-0 bg-light p-3 rounded"><code id="modal-details">
+{
+  "method": "POST",
+  "path": "/admin/login/",
+  "status_code": 200,
+  "session_key": "8f7h3j2k1l0a9s8d7f6g5h4j3k2l1",
+  "duration": "0.324s"
+}
+                        </code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Actualisation des logs
+        document.getElementById('refreshLogs').addEventListener('click', function() {
+            // Dans une implémentation réelle, cela rechercherait les données via AJAX
+            // ou rechargerait la page
+            location.reload();
+        });
+        
+        // Exportation des logs
+        document.getElementById('exportLogs').addEventListener('click', function() {
+            alert('Dans une implémentation réelle, cela exporterait les logs dans un fichier CSV ou autre format.');
+            // Vous pourriez implémenter un vrai export de données ici
+        });
+        
+        // Gestion des détails du modal
+        const logDetailsModal = document.getElementById('logDetailsModal');
+        if (logDetailsModal) {
+            logDetailsModal.addEventListener('show.bs.modal', function(event) {
+                // Bouton qui a déclenché le modal
+                const button = event.relatedTarget;
+                
+                // Récupérer l'ID du log
+                const logId = button.getAttribute('data-log-id');
+                
+                // Dans une implémentation réelle, vous feriez une requête AJAX pour obtenir les détails
+                // ou vous passeriez les données complètes via data attributes
+                // Ici nous simulons seulement pour la démo
+                
+                // Mettre à jour les champs du modal avec les détails du log
+                document.getElementById('modal-date').textContent = "18/05/2025 16:45:23";
+                document.getElementById('modal-user').textContent = "admin";
+                document.getElementById('modal-action').textContent = "Connexion";
+                document.getElementById('modal-ip').textContent = "192.168.1.5";
+                document.getElementById('modal-browser').textContent = "Chrome 120.0.0";
+                
+                // Vous pourriez également mettre à jour d'autres éléments comme le badge de sévérité
+                // et les détails JSON en fonction des données réelles
+            });
+        }
+    });
+</script>
+{% endblock %}
+

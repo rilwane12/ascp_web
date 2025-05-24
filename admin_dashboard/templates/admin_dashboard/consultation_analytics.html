@@ -1,0 +1,266 @@
+{% extends "admin_dashboard/base_admin.html" %}
+
+{% block title %}Analyse des Consultations | Administration Asclepios{% endblock %}
+
+{% block page_title %}Analyse des Consultations{% endblock %}
+
+{% block content %}
+<!-- Statistiques générales -->
+<div class="row">
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card stats-card">
+            <div class="card-body">
+                <i class="fas fa-calendar-check text-info"></i>
+                <div class="value">{{ total_consultations }}</div>
+                <div class="label">Consultations au total</div>
+            </div>
+            <div class="card-footer bg-white text-center">
+                <a href="/admin/examinations/consultation/" class="btn btn-sm btn-outline-info">Voir toutes</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card stats-card">
+            <div class="card-body">
+                <i class="fas fa-clipboard-check text-success"></i>
+                <div class="value">{{ consultation_exam_stats.with_exam }}</div>
+                <div class="label">Avec examen clinique</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card stats-card">
+            <div class="card-body">
+                <i class="fas fa-clipboard text-warning"></i>
+                <div class="value">{{ consultation_exam_stats.without_exam }}</div>
+                <div class="label">Sans examen clinique</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Graphiques -->
+<div class="row">
+    <!-- Consultations par mois -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">Évolution des consultations (12 derniers mois)</div>
+            <div class="card-body">
+                <canvas id="consultationsMonthlyChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Répartition consultations avec/sans examen -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">Répartition des consultations</div>
+            <div class="card-body">
+                <canvas id="consultationExamsChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Examens paracliniques -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">Top 10 des examens paracliniques demandés</div>
+            <div class="card-body">
+                <canvas id="paraclinicalExamsChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fonctionnalités d'exportation et actions rapides -->
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">Exportation des données</div>
+            <div class="card-body">
+                <p>Exportez les données de consultations au format de votre choix :</p>
+                <a href="/admin/examinations/consultation/?_export=csv" class="btn btn-outline-primary m-1">
+                    <i class="fas fa-file-csv me-2"></i>Exporter en CSV
+                </a>
+                <a href="/admin/examinations/consultation/?_export=excel" class="btn btn-outline-success m-1">
+                    <i class="fas fa-file-excel me-2"></i>Exporter en Excel
+                </a>
+                <a href="/admin/examinations/consultation/?_export=json" class="btn btn-outline-secondary m-1">
+                    <i class="fas fa-file-code me-2"></i>Exporter en JSON
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">Actions rapides</div>
+            <div class="card-body">
+                <p>Gérez les consultations et examens :</p>
+                <a href="/admin/examinations/consultation/add/" class="btn btn-outline-info m-1">
+                    <i class="fas fa-calendar-plus me-2"></i>Nouvelle consultation
+                </a>
+                <a href="/admin/examinations/examenclinique/add/" class="btn btn-outline-success m-1">
+                    <i class="fas fa-stethoscope me-2"></i>Nouvel examen clinique
+                </a>
+                <a href="/admin/examinations/examenparaclinique/add/" class="btn btn-outline-warning m-1">
+                    <i class="fas fa-vial me-2"></i>Nouvel examen paraclinique
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configuration des couleurs
+        const primaryColor = '#4e73df';
+        const successColor = '#1cc88a';
+        const infoColor = '#36b9cc';
+        const warningColor = '#f6c23e';
+        const dangerColor = '#e74a3b';
+        
+        // Graphique d'évolution mensuelle des consultations
+        const monthlyData = {{ consultations_by_month|safe }};
+        const monthlyLabels = monthlyData.map(item => {
+            const date = new Date(item.month);
+            return `${date.getMonth() + 1}/${date.getFullYear()}`;
+        });
+        const monthlyCounts = monthlyData.map(item => item.count);
+        
+        new Chart(document.getElementById('consultationsMonthlyChart'), {
+            type: 'line',
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    label: 'Consultations',
+                    data: monthlyCounts,
+                    backgroundColor: 'rgba(54, 185, 204, 0.1)',
+                    borderColor: infoColor,
+                    borderWidth: 2,
+                    pointBackgroundColor: infoColor,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                return `Mois: ${tooltipItems[0].label}`;
+                            },
+                            label: function(context) {
+                                return `Consultations: ${context.raw}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Graphique de répartition des consultations avec/sans examen
+        const examStats = {
+            labels: ['Avec examen clinique', 'Sans examen clinique'],
+            data: [{{ consultation_exam_stats.with_exam }}, {{ consultation_exam_stats.without_exam }}]
+        };
+        
+        new Chart(document.getElementById('consultationExamsChart'), {
+            type: 'doughnut',
+            data: {
+                labels: examStats.labels,
+                datasets: [{
+                    data: examStats.data,
+                    backgroundColor: [successColor, warningColor],
+                    hoverBackgroundColor: [
+                        'rgba(28, 200, 138, 0.8)',
+                        'rgba(246, 194, 62, 0.8)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = examStats.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.raw / total) * 100).toFixed(1);
+                                return `${context.label}: ${context.raw} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+        
+        // Graphique des examens paracliniques
+        const examsData = {{ examens_paracliniques|safe }};
+        const examsLabels = examsData.map(item => item.nom);
+        const examsCounts = examsData.map(item => item.count);
+        
+        // Générer des couleurs différentes pour chaque examen
+        const examsColors = examsLabels.map((_, index) => {
+            // Interpoler entre les couleurs primaires
+            const ratio = index / examsLabels.length;
+            const r = Math.round(54 + ratio * (231 - 54));
+            const g = Math.round(185 - ratio * (185 - 74));
+            const b = Math.round(204 - ratio * (204 - 59));
+            return `rgb(${r}, ${g}, ${b})`;
+        });
+        
+        new Chart(document.getElementById('paraclinicalExamsChart'), {
+            type: 'bar',
+            data: {
+                labels: examsLabels,
+                datasets: [{
+                    label: 'Nombre de demandes',
+                    data: examsCounts,
+                    backgroundColor: examsColors,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',  // Barre horizontale
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+

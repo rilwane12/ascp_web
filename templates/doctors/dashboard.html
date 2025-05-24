@@ -1,0 +1,142 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Tableau de bord | Asclepios Prescription{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="display-5">
+            <i class="fas fa-home me-2"></i> Tableau de bord
+        </h1>
+        <p class="lead">Bienvenue, Dr. {{ user.nom }} {{ user.prenom }}</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card text-center h-100 shadow-sm">
+            <div class="card-body">
+                <div class="display-1 text-primary mb-3">
+                    <i class="fas fa-user-injured"></i>
+                </div>
+                <h5 class="card-title">Patients</h5>
+                <p class="card-text">Gérer vos patients</p>
+                <a href="{% url 'patient_list' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> Accéder
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card text-center h-100 shadow-sm">
+            <div class="card-body">
+                <div class="display-1 text-primary mb-3">
+                    <i class="fas fa-stethoscope"></i>
+                </div>
+                <h5 class="card-title">Consultations</h5>
+                <p class="card-text">Gérer vos consultations</p>
+                <a href="{% url 'consultation_list' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> Accéder
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card text-center h-100 shadow-sm">
+            <div class="card-body">
+                <div class="display-1 text-primary mb-3">
+                    <i class="fas fa-prescription"></i>
+                </div>
+                <h5 class="card-title">Ordonnances</h5>
+                <p class="card-text">Gérer vos ordonnances</p>
+                <a href="{% url 'prescription_list' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> Accéder
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-center h-100 shadow-sm">
+            <div class="card-body">
+                <div class="display-1 text-primary mb-3">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h5 class="card-title">Profil</h5>
+                <p class="card-text">Gérer votre profil</p>
+                <a href="{% url 'profile' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> Accéder
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4 mb-md-0">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-injured me-2"></i> Derniers patients
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for patient in recent_patients %}
+                        <a href="{% url 'patient_detail' patient.pk %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ patient.nom }} {{ patient.prenom }}</h6>
+                                <small>{{ patient.created_at|date:"d/m/Y" }}</small>
+                            </div>
+                            <p class="mb-1">{{ patient.age }} ans - {{ patient.get_genre_display }}</p>
+                        </a>
+                    {% empty %}
+                        <p class="text-muted text-center my-3">Aucun patient enregistré</p>
+                    {% endfor %}
+                </div>
+                {% if recent_patients %}
+                    <div class="text-center mt-3">
+                        <a href="{% url 'patient_list' %}" class="btn btn-sm btn-outline-primary">
+                            Voir tous les patients
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-stethoscope me-2"></i> Dernières consultations
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for consultation in recent_consultations %}
+                        <a href="{% url 'consultation_detail' consultation.pk %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ consultation.patient.nom }} {{ consultation.patient.prenom }}</h6>
+                                <small>{{ consultation.date|date:"d/m/Y H:i" }}</small>
+                            </div>
+                            <p class="mb-1">Dr. {{ consultation.doctor.nom }} {{ consultation.doctor.prenom }}</p>
+                        </a>
+                    {% empty %}
+                        <p class="text-muted text-center my-3">Aucune consultation enregistrée</p>
+                    {% endfor %}
+                </div>
+                {% if recent_consultations %}
+                    <div class="text-center mt-3">
+                        <a href="{% url 'consultation_list' %}" class="btn btn-sm btn-outline-primary">
+                            Voir toutes les consultations
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

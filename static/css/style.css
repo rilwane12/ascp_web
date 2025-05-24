@@ -1,0 +1,310 @@
+/* Main styles for Asclepios Prescription Web */
+
+:root {
+    --primary-color: #4B96DD;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --info-color: #0dcaf0;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+}
+
+/* Base Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 18px; /* Increased from 16px */
+    color: #333;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+h1, .h1 {
+    font-size: 2.5rem; /* Larger headings */
+}
+
+h2, .h2 {
+    font-size: 2.2rem;
+}
+
+h3, .h3 {
+    font-size: 1.9rem;
+}
+
+h4, .h4 {
+    font-size: 1.6rem;
+}
+
+h5, .h5 {
+    font-size: 1.4rem; /* Larger h5 for card titles */
+}
+
+.lead {
+    font-size: 1.35rem; /* Larger lead text */
+}
+
+.btn {
+    font-size: 1.05rem; /* Larger buttons */
+    padding: 0.6rem 1.2rem; /* More padding in buttons */
+}
+
+.btn-sm {
+    font-size: 0.95rem;
+    padding: 0.4rem 0.8rem;
+}
+
+/* Auth pages */
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Card styles */
+.card {
+    border-radius: 0.75rem; /* Increased from 0.5rem */
+    box-shadow: 0 5px 8px rgba(0, 0, 0, 0.1); /* Slightly stronger shadow */
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 2rem; /* Increased from 1.5rem */
+}
+
+.card:hover {
+    transform: translateY(-3px); /* Slightly more lift on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    border-top-left-radius: 0.75rem !important; /* Match card border radius */
+    border-top-right-radius: 0.75rem !important;
+    font-weight: 600;
+    font-size: 1.25rem; /* Increased from 1.1rem */
+    padding: 1.25rem 1.5rem; /* More padding */
+}
+
+.card-body {
+    padding: 1.5rem; /* Increased padding */
+}
+
+/* List groups */
+.list-group-item {
+    border-left: none;
+    border-right: none;
+    border-radius: 0 !important;
+    transition: background-color 0.2s;
+    padding: 1rem 1.25rem; /* More padding */
+    font-size: 1.05rem; /* Slightly larger text */
+}
+
+.list-group-item:hover {
+    background-color: rgba(75, 150, 221, 0.05);
+}
+
+.list-group-item:first-child {
+    border-top: none;
+}
+
+/* Navbar styles */
+.navbar {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1); /* Stronger shadow */
+    padding: 0.75rem 1.5rem; /* More padding */
+}
+
+.navbar-brand {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    font-size: 1.5rem; /* Larger brand text */
+}
+
+.navbar-nav .nav-link {
+    font-size: 1.1rem; /* Larger navbar links */
+    padding: 0.6rem 1rem !important; /* More padding */
+}
+
+/* Dashboard cards */
+.dashboard-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-icon {
+    font-size: 4rem; /* Increased from 3.5rem */
+    margin-bottom: 1.5rem; /* Increased from 1.25rem */
+    color: var(--primary-color);
+}
+
+/* Display elements in dashboard */
+.display-1 {
+    font-size: 5rem !important; /* Larger icons in dashboard */
+}
+
+.display-5 {
+    font-size: 2.5rem !important;
+}
+
+/* Form styling */
+.form-control, .form-select {
+    font-size: 1.05rem; /* Larger form controls */
+    padding: 0.6rem 0.8rem; /* More padding */
+    height: auto; /* Allow height to adjust to content */
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.3rem rgba(75, 150, 221, 0.25); /* Larger focus ring */
+}
+
+label {
+    font-weight: 500;
+    margin-bottom: 0.6rem; /* Increased from 0.5rem */
+    font-size: 1.15rem; /* Increased from 1.05rem */
+}
+
+/* Footer */
+.footer {
+    margin-top: auto;
+    padding: 1.25rem 0; /* Increased from 1rem */
+    border-top: 1px solid #eee;
+    font-size: 1.05rem; /* Larger footer text */
+}
+
+/* Prescription styling */
+.prescription-container {
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 3rem; /* Increased from 2.5rem */
+    margin-bottom: 3rem; /* Increased from 2.5rem */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.prescription-header {
+    border-bottom: 2px solid var(--primary-color);
+    margin-bottom: 2rem; /* Increased from 1.5rem */
+    padding-bottom: 1.25rem; /* Increased from 1rem */
+}
+
+.prescription-item {
+    margin-bottom: 1.25rem; /* Increased from 1rem */
+    padding-bottom: 1.25rem; /* Increased from 1rem */
+    border-bottom: 1px dashed #eee;
+}
+
+.prescription-item:last-child {
+    border-bottom: none;
+}
+
+/* Patient card */
+.patient-card {
+    background-color: white;
+    border-radius: 0.75rem; /* Increased from 0.5rem */
+    padding: 2rem; /* Increased from 1.75rem */
+    margin-bottom: 2.5rem; /* Increased from 2.25rem */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.patient-card h4 {
+    color: var(--primary-color);
+    margin-bottom: 1.25rem; /* Increased from 1rem */
+}
+
+/* Typeahead styling */
+.twitter-typeahead {
+    width: 100%;
+}
+
+.tt-hint {
+    color: #999;
+}
+
+.tt-menu {
+    width: 100%;
+    margin-top: 0.125rem;
+    padding: 0.75rem 0; /* Increased from 0.5rem */
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.35rem; /* Slightly larger radius */
+    box-shadow: 0 0.6rem 1.2rem rgba(0, 0, 0, 0.175);
+}
+
+.tt-suggestion {
+    padding: 0.75rem 1.25rem; /* Increased from 0.5rem 1rem */
+    cursor: pointer;
+    font-size: 1.05rem; /* Larger suggestions */
+}
+
+.tt-suggestion:hover,
+.tt-suggestion.tt-cursor {
+    color: #fff;
+    background-color: var(--primary-color);
+}
+
+/* Container adjustment */
+.container {
+    max-width: 1320px; /* Wider container */
+    padding: 0 20px; /* Extra padding */
+}
+
+/* Table adjustments */
+.table {
+    font-size: 1.05rem; /* Larger table text */
+}
+
+.table td, .table th {
+    padding: 0.75rem 1rem; /* More cell padding */
+}
+
+/* Alert messages */
+.alert {
+    font-size: 1.05rem; /* Larger alert text */
+    padding: 1rem 1.25rem; /* More padding */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        font-size: 17px; /* Slightly smaller base size on mobile but still larger than original */
+    }
+    
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    .card-body {
+        padding: 1.25rem;
+    }
+    
+    .prescription-container {
+        padding: 1.75rem; /* Increased from 1.5rem */
+    }
+    
+    .display-1 {
+        font-size: 4rem !important; /* Slightly smaller on mobile */
+    }
+    
+    h1, .h1 {
+        font-size: 2.2rem; /* Slightly smaller on mobile */
+    }
+    
+    h5, .h5 {
+        font-size: 1.25rem; /* Slightly smaller on mobile */
+    }
+}
+
+/* Medium screens */
+@media (min-width: 769px) and (max-width: 1199px) {
+    .container {
+        max-width: 95%; /* Use more screen width on medium screens */
+    }
+}
